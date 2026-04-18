@@ -5,6 +5,7 @@ import { FretboardComponent } from './components/fretboard/fretboard.component';
 import { CircleOfFifthsComponent } from './components/circle-of-fifths/circle-of-fifths.component';
 import { MetronomeComponent } from './components/metronome/metronome.component';
 import { TheoryService } from './services/theory.service';
+import { TranslationService } from './services/translation.service';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +15,7 @@ import { TheoryService } from './services/theory.service';
 })
 export class App {
   theory = inject(TheoryService);
+  lang = inject(TranslationService);
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {

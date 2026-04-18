@@ -2,6 +2,7 @@ import { Component, inject, signal, effect, OnDestroy, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TheoryService } from '../../services/theory.service';
+import { TranslationService } from '../../services/translation.service';
 import * as Tone from 'tone';
 
 interface DrumPattern {
@@ -32,13 +33,13 @@ interface DrumPattern {
              <input type="range" orient="vertical" min="0" max="1" step="0.01" 
                     [ngModel]="theory.metronomeVolume()" (ngModelChange)="theory.metronomeVolume.set($event)"
                     class="h-14 lg:h-16 w-1 accent-highlight appearance-none bg-gray-700 rounded-full cursor-pointer vertical-range">
-             <span class="text-[8px] text-gray-500 font-bold tracking-tighter uppercase">Click</span>
+             <span class="text-[8px] text-gray-500 font-bold tracking-tighter uppercase">{{ lang.t('CLICK') }}</span>
            </div>
            <div class="flex flex-col items-center gap-1">
              <input type="range" orient="vertical" min="0" max="1" step="0.01" 
                     [ngModel]="theory.drumsVolume()" (ngModelChange)="theory.drumsVolume.set($event)"
                     class="h-14 lg:h-16 w-1 accent-red-500 appearance-none bg-gray-700 rounded-full cursor-pointer vertical-range">
-             <span class="text-[8px] text-gray-500 font-bold tracking-tighter uppercase">Drums</span>
+             <span class="text-[8px] text-gray-500 font-bold tracking-tighter uppercase">{{ lang.t('DRUMS') }}</span>
            </div>
         </div>
       </div>
@@ -47,7 +48,7 @@ interface DrumPattern {
       <div class="flex flex-col gap-4 py-2 lg:py-0">
         <div class="flex flex-col sm:flex-row items-start sm:items-end gap-6">
            <div class="flex flex-col gap-1 w-full sm:w-auto">
-             <label class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Tempo (BPM)</label>
+             <label class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{{ lang.t('TEMPO') }} (BPM)</label>
              <div class="flex items-center gap-2">
                <button (click)="adjustTempo(-1)" class="w-8 h-8 rounded bg-gray-800 text-white hover:bg-gray-700 flex items-center justify-center font-bold shadow-sm transition active:scale-90">-</button>
                <input type="number" [ngModel]="theory.metronomeTempo()" (ngModelChange)="updateTempo($event)" min="10" max="240"
@@ -57,9 +58,9 @@ interface DrumPattern {
            </div>
 
            <div class="flex flex-col gap-1 w-full sm:w-auto">
-             <label class="text-[10px] text-gray-500 uppercase tracking-widest font-bold sm:text-center">Presets</label>
+             <label class="text-[10px] text-gray-500 uppercase tracking-widest font-bold sm:text-center">{{ lang.t('PRESETS') }}</label>
              <div class="flex gap-1 overflow-x-auto pb-1 no-scrollbar">
-               <button *ngFor="let p of [60, 80, 100, 120]" (click)="updateTempo(p)"
+               <button *ngFor="let p of [60, 80, 100, 120, 140]" (click)="updateTempo(p)"
                        class="flex-1 sm:w-10 h-8 rounded bg-gray-800 text-[10px] font-bold transition-all border border-transparent whitespace-nowrap px-2"
                        [ngClass]="theory.metronomeTempo() === p ? 'border-highlight text-highlight' : 'text-gray-400 hover:text-white'">
                  {{ p }}
@@ -73,28 +74,28 @@ interface DrumPattern {
            <label class="flex items-center gap-2 cursor-pointer group">
              <input type="checkbox" [ngModel]="theory.metronomeClickEnabled()" (ngModelChange)="theory.metronomeClickEnabled.set($event)"
                     class="accent-highlight w-4 h-4 rounded">
-             <span class="text-[10px] font-bold text-gray-400 group-hover:text-white uppercase tracking-wider">Metronome Click</span>
+             <span class="text-[10px] font-bold text-gray-400 group-hover:text-white uppercase tracking-wider">{{ lang.t('METRONOME') }} {{ lang.t('CLICK') }}</span>
            </label>
            <div class="hidden sm:block w-px h-4 bg-gray-800 mx-2"></div>
            <label class="flex items-center gap-2 cursor-pointer group">
              <input type="checkbox" [ngModel]="theory.metronomeHasAccent()" (ngModelChange)="theory.metronomeHasAccent.set($event)"
                     class="accent-red-500 w-4 h-4 rounded">
-             <span class="text-[10px] font-bold text-gray-400 group-hover:text-white uppercase tracking-wider">Accent Loop</span>
+             <span class="text-[10px] font-bold text-gray-400 group-hover:text-white uppercase tracking-wider">{{ lang.t('ACCENT') }} Loop</span>
            </label>
         </div>
       </div>
 
       <!-- Rhythm Styles -->
       <div class="flex flex-col gap-1 border-t lg:border-t-0 lg:border-l border-gray-800 pt-4 lg:pt-0 lg:pl-6">
-        <label class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Drum Rhythm</label>
+        <label class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{{ lang.t('DRUM_RHYTHM') }}</label>
         <div class="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
           <button *ngFor="let style of drumStyles"
                   (click)="theory.selectedDrumStyle.set(style)"
                   class="px-2 py-2 rounded text-[9px] sm:text-[10px] font-black transition-all border border-transparent text-center"
                   [ngClass]="theory.selectedDrumStyle() === style 
-                    ? 'bg-red-500 text-white shadow-lg scale-105' 
-                    : 'bg-gray-800 text-gray-500 hover:text-white hover:bg-gray-700'">
-            {{ style }}
+                    ? 'bg-highlight text-white active:scale-95 shadow-[0_0_15px_rgba(59,130,246,0.5)]' 
+                    : 'bg-studio-darker border-gray-800 text-gray-500 hover:text-white hover:bg-gray-800'">
+            {{ lang.t(style) }}
           </button>
         </div>
       </div>
@@ -140,20 +141,21 @@ interface DrumPattern {
 })
 export class MetronomeComponent implements OnDestroy {
   theory = inject(TheoryService);
+  lang = inject(TranslationService);
   
   currentBeat = signal(0);
   currentStep = 0; // 0-15 for drum sequencer
 
-  drumStyles = ['None', 'Rock', 'Pop', 'Blues', 'Ballad', 'Hard Rock', 'Reggae', 'Heavy'];
+  drumStyles = ['STYLE_NONE', 'STYLE_ROCK', 'STYLE_POP', 'STYLE_BLUES', 'STYLE_BALLAD', 'STYLE_HARD_ROCK', 'STYLE_REGGAE', 'STYLE_HEAVY'];
 
   private patterns: Record<string, DrumPattern> = {
-    'Rock': { k: [0, 8, 10], s: [4, 12], h: [0, 2, 4, 6, 8, 10, 12, 14] },
-    'Pop': { k: [0, 2, 4, 6, 8, 10, 12, 14], s: [4, 12], h: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] },
-    'Blues': { k: [0, 6, 12], s: [4, 10], h: [0, 2, 4, 6, 8, 10, 12, 14] }, // Shuffle feel simulated
-    'Ballad': { k: [0, 11], s: [4, 12], h: [0, 4, 8, 12] },
-    'Hard Rock': { k: [0, 2, 3, 8], s: [4, 12], h: [0, 2, 4, 6, 8, 10, 12, 14] },
-    'Reggae': { k: [8], s: [8], h: [0, 2, 4, 6, 8, 10, 12, 14] }, // One drop
-    'Heavy': { k: [0, 2, 4, 6, 8, 10, 12, 14], s: [4, 12], h: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] }
+    'STYLE_ROCK': { k: [0, 8, 10], s: [4, 12], h: [0, 2, 4, 6, 8, 10, 12, 14] },
+    'STYLE_POP': { k: [0, 2, 4, 6, 8, 10, 12, 14], s: [4, 12], h: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] },
+    'STYLE_BLUES': { k: [0, 6, 12], s: [4, 10], h: [0, 2, 4, 6, 8, 10, 12, 14] }, // Shuffle feel simulated
+    'STYLE_BALLAD': { k: [0, 11], s: [4, 12], h: [0, 4, 8, 12] },
+    'STYLE_HARD_ROCK': { k: [0, 2, 3, 8], s: [4, 12], h: [0, 2, 4, 6, 8, 10, 12, 14] },
+    'STYLE_REGGAE': { k: [8], s: [8], h: [0, 2, 4, 6, 8, 10, 12, 14] }, // One drop
+    'STYLE_HEAVY': { k: [0, 2, 4, 6, 8, 10, 12, 14], s: [4, 12], h: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] }
   };
 
   private loop: Tone.Loop | null = null;

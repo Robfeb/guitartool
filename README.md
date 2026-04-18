@@ -9,8 +9,8 @@ Welcome to **Rob's Guitar Tool**, a high-performance, interactive guitar theory 
 
 ## ✨ Key Features
 
-### 🎹 Interactive Fretboard
-- **Dynamic Note Mapping**: Visualize all notes or intervals (R, 3, 5, etc.) in any key.
+- **Multilingual Support (i18n)**: Toggle between **English** and **Spanish (Español)** instantly. Your language preference is persisted to `localStorage`.
+- **Interactive Fretboard**: Visualize all notes or intervals (R, 3, 5, etc.) in any key.
 - **CAGED System Integration**: Instantly view and jump between all 5 CAGED shapes for any chord.
 - **Physical Accuracy**: 22-fret neck with realistic marker positions and string gauges.
 - **Audio Feedback**: Powered by Tone.js—click any note to hear it, or use the **Strum** button to play the entire voicing.

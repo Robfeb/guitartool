@@ -1,7 +1,8 @@
-import { Component, inject, HostListener } from '@angular/core';
+import { Component, inject, HostListener, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TheoryService, FretNote, TUNINGS, CHORDS, SCALES, STANDARD_SHAPES, NOTES } from '../../services/theory.service';
+import { TranslationService } from '../../services/translation.service';
 import * as Tone from 'tone';
 
 @Component({
@@ -16,12 +17,12 @@ import * as Tone from 'tone';
         <!-- Left: Key & Note Selection -->
         <div class="flex flex-col gap-3 w-full lg:w-auto">
            <div class="flex items-center gap-3">
-             <h2 class="text-lg md:text-xl font-black text-string tracking-tighter xl:tracking-widest uppercase">Fretboard</h2>
+             <h2 class="text-lg md:text-xl font-black text-string tracking-tighter xl:tracking-widest uppercase">{{ lang.t('FRETBOARD') }}</h2>
              <!-- Strum Button -->
              <button *ngIf="theory.selectedType() === 'Chord'" 
                     (click)="strumChord()" 
                     class="bg-highlight hover:bg-highlight/80 text-white w-10 h-10 rounded-full shadow-lg transition transform hover:scale-110 flex items-center justify-center border-4 border-studio-darker"
-                    title="Strum Chord">
+                    [attr.title]="lang.t('STRUM')">
                <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"></path></svg>
              </button>
            </div>
@@ -29,25 +30,25 @@ import * as Tone from 'tone';
            <!-- Root Note & Type Selector Row -->
            <div class="flex flex-col sm:flex-row gap-4 w-full md:min-w-[600px] items-stretch sm:items-end">
              <div class="flex flex-col gap-1.5 flex-grow">
-               <span class="text-[9px] text-gray-500 uppercase tracking-widest font-black">Select Key</span>
+               <span class="text-[9px] text-gray-500 uppercase tracking-widest font-black">{{ lang.t('SELECT_KEY') }}</span>
                <div class="flex bg-studio-darker/50 rounded-md overflow-x-auto border border-gray-800 no-scrollbar shadow-inner">
                  <button *ngFor="let note of notes" 
                          class="flex-1 min-w-[2.5rem] py-2 text-xs font-black transition hover:bg-highlight hover:text-white"
                          [ngClass]="{'bg-root text-white shadow-lg': theory.selectedRoot() === note, 'text-gray-500': theory.selectedRoot() !== note}"
                          (click)="theory.selectedRoot.set(note); theory.previewRoot.set(null); theory.previewChordName.set(null)">
-                   {{ note }}
+                   {{ lang.t(note) }}
                  </button>
                </div>
              </div>
 
              <div class="flex flex-col gap-1.5 w-full sm:w-32">
-               <span class="text-[9px] text-gray-500 uppercase tracking-widest font-black">Mode</span>
+               <span class="text-[9px] text-gray-500 uppercase tracking-widest font-black">{{ lang.t('MODE') }}</span>
                <select 
                  [ngModel]="theory.selectedType()"
                  (ngModelChange)="onTypeChange($event)"
                  class="bg-studio-darker border border-gray-800 text-white text-[11px] font-bold rounded focus:ring-highlight block w-full p-2 h-[34px] shadow-inner">
-                 <option value="Scale" class="bg-studio-dark text-white">Scale</option>
-                 <option value="Chord" class="bg-studio-dark text-white">Chord</option>
+                 <option value="Scale" class="bg-studio-dark text-white">{{ lang.t('SCALE') }}</option>
+                 <option value="Chord" class="bg-studio-dark text-white">{{ lang.t('CHORD') }}</option>
                </select>
              </div>
            </div>
@@ -58,12 +59,12 @@ import * as Tone from 'tone';
            
            <!-- Voicing Control -->
            <div class="flex items-center gap-2 bg-studio-darker/30 p-1 rounded-md border border-gray-800" *ngIf="theory.selectedType() === 'Chord'">
-             <button class="bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded text-white text-[10px] font-bold" (click)="rotateVoicing(-1)">Prev</button>
+             <button class="bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded text-white text-[10px] font-bold" (click)="rotateVoicing(-1)">{{ lang.t('PREV') }}</button>
              <div class="flex flex-col items-center min-w-[3rem]">
                <span class="text-white text-[10px] font-black">{{ theory.selectedVoicingIndex() + 1 }} / {{ theory.generatedVoicings().length }}</span>
                <span *ngIf="currentCagedShape()" class="text-[8px] font-black text-green-500 uppercase">{{ currentCagedShape() }}-Shape</span>
              </div>
-             <button class="bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded text-white text-[10px] font-bold" (click)="rotateVoicing(1)">Next</button>
+             <button class="bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded text-white text-[10px] font-bold" (click)="rotateVoicing(1)">{{ lang.t('NEXT') }}</button>
            </div>
 
            <!-- Multi-toggle Row -->
@@ -72,30 +73,41 @@ import * as Tone from 'tone';
                     class="flex items-center gap-2 cursor-pointer text-[10px] font-bold text-string/80 hover:text-white transition">
                <input type="checkbox" [ngModel]="theory.showFingers()" (ngModelChange)="theory.showFingers.set($event)"
                       class="accent-highlight w-4 h-4 rounded">
-               <span>Fingers</span>
+               <span>{{ lang.t('FINGERS') }}</span>
              </label>
 
              <label class="flex items-center gap-2 cursor-pointer text-[10px] font-bold text-string/80 hover:text-white transition">
                <input type="checkbox" [ngModel]="theory.learningMode()" (ngModelChange)="theory.learningMode.set($event)"
                       class="accent-highlight w-4 h-4 rounded">
-               <span>Notes</span>
+               <span>{{ lang.t('NOTES') }}</span>
              </label>
            </div>
 
-           <!-- Tuning Dropdown -->
-           <div class="flex items-center gap-2 ml-auto lg:ml-0">
-             <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest hidden sm:block">Tuning</label>
-             <select [ngModel]="theory.selectedTuning()" (ngModelChange)="theory.selectedTuning.set($event)"
-               class="bg-fretboard border border-gray-700 text-white text-[11px] rounded focus:ring-highlight block w-28 p-1.5">
-               <option *ngFor="let tuning of tunings" [value]="tuning">{{ tuning }}</option>
-             </select>
+           <!-- Tuning & Range Dropdowns -->
+           <div class="flex items-center gap-4 ml-auto lg:ml-0">
+             <div class="flex items-center gap-2">
+               <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest hidden sm:block">{{ lang.t('TUNING') }}</label>
+               <select [ngModel]="theory.selectedTuning()" (ngModelChange)="theory.selectedTuning.set($event)"
+                 class="bg-fretboard border border-gray-700 text-white text-[11px] rounded focus:ring-highlight block w-28 p-1.5">
+                 <option *ngFor="let tuning of tunings" [value]="tuning">{{ tuning }}</option>
+               </select>
+             </div>
+
+             <div class="flex items-center gap-2">
+               <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest hidden sm:block">{{ lang.t('FRETS') }}</label>
+               <select [ngModel]="theory.fretRange()" (ngModelChange)="theory.fretRange.set(+($event))"
+                 class="bg-fretboard border border-gray-700 text-white text-[11px] rounded focus:ring-highlight block w-16 p-1.5">
+                 <option [value]="16">16</option>
+                 <option [value]="22">22</option>
+               </select>
+             </div>
            </div>
         </div>
       </div>
 
       <!-- Chord / Scale Name Button Row -->
       <div class="flex flex-wrap gap-2 pl-4 md:pl-12 mb-4 overflow-x-auto no-scrollbar py-1">
-        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest self-center mr-2 shrink-0">{{ theory.selectedType() }}:</span>
+        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest self-center mr-2 shrink-0">{{ lang.t(theory.selectedType().toUpperCase()) }}:</span>
         <button 
           *ngFor="let name of currentOptions()"
           (click)="selectName(name)"
@@ -104,7 +116,7 @@ import * as Tone from 'tone';
             ? 'bg-highlight text-white border-highlight shadow-lg scale-105'
             : 'bg-fretboard text-string border-gray-700 hover:border-highlight hover:text-white'"
         >
-          {{ name }}
+          {{ lang.t(name.toUpperCase().replace(' ', '_')) }}
         </button>
       </div>
 
@@ -112,7 +124,7 @@ import * as Tone from 'tone';
       <div class="min-w-[800px] flex flex-col gap-1 select-none mt-2 pr-12 pb-4">
         <!-- Fret Numbers -->
         <div class="flex text-[10px] text-gray-600 mb-2 font-black ml-12">
-          <div *ngFor="let fret of fretNumbers" class="flex-1 text-center font-mono">
+          <div *ngFor="let fret of fretNumbers()" class="flex-1 text-center font-mono">
             {{ fret === 0 ? 'OPEN' : fret }}
           </div>
         </div>
@@ -122,7 +134,7 @@ import * as Tone from 'tone';
                class="flex relative items-center mb-1 group">
                
             <div class="w-12 flex min-w-[3.5rem] items-center justify-center font-black text-lg text-gray-700 bg-studio-darker/50">
-              {{ stringNotes[0].note }}
+              {{ lang.t(stringNotes[0].note) }}
             </div>
                
             <div class="absolute left-14 right-0 h-0.5 bg-string opacity-40 z-0 shadow-sm transition group-hover:bg-white/50 group-hover:opacity-100" 
@@ -151,13 +163,13 @@ import * as Tone from 'tone';
                 
                 <ng-container *ngIf="!theory.showFingers() || !note.finger">
                   <span *ngIf="learningMode()" class="text-[10px]">
-                    {{ note.note }}
+                    {{ lang.t(note.note) }}
                   </span>
                   <span *ngIf="!learningMode() && note.interval !== null">
                     {{ getIntervalName(note.interval) }}
                   </span>
                   <span *ngIf="!learningMode() && note.interval === null" class="opacity-0 group-hover:opacity-100 transition">
-                    {{ note.note }}
+                    {{ lang.t(note.note) }}
                   </span>
                 </ng-container>
               </button>
@@ -170,20 +182,20 @@ import * as Tone from 'tone';
 })
 export class FretboardComponent {
   theory = inject(TheoryService);
+  lang = inject(TranslationService);
   Math = Math;
   notes = NOTES;
 
   learningMode = this.theory.learningMode;
   fretboard = this.theory.visibleFretboard;
 
-  // Just an array for the header [0, 1, 2, ..., 22]
-  fretNumbers = Array.from({ length: 23 }, (_, i) => i);
+  // Now a signal-based computed array for the header [0, 1, ..., 16/22]
+  fretNumbers = computed(() => Array.from({ length: this.theory.fretRange() + 1 }, (_, i) => i));
 
   synth: Tone.PolySynth | null = null;
 
   @HostListener('window:keydown', ['$event'])
   async handleKeyboardEvent(event: KeyboardEvent) {
-    // Ignore if typing in an input or select
     const target = event.target as HTMLElement;
     if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA') {
       return;
@@ -200,7 +212,6 @@ export class FretboardComponent {
       this.theory.previewRoot.set(null);
       this.theory.previewChordName.set(null);
       
-      // Play sound immediately
       if (this.theory.selectedType() === 'Chord') {
         await this.strumChord();
       } else {
@@ -288,7 +299,6 @@ export class FretboardComponent {
 
     const notesToPlay: string[] = [];
     const board = this.fretboard();
-    // strum thickest string (high index) to thinnest (low index)
     for (let i = board.length - 1; i >= 0; i--) {
       const stringNotes = board[i];
       for (const note of stringNotes) {

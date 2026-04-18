@@ -13,31 +13,48 @@
       <div>
         <h1
           class="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-          Rob's Guitar Tool
+          {{ lang.t('APP_TITLE') }}
         </h1>
-        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-widest font-bold">Interactive Fretboard & Theory</p>
+        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-widest font-bold">{{ lang.t('APP_SUBTITLE') }}</p>
       </div>
     </div>
 
-    <!-- Theme & Modules Toggle Controls -->
-    <div class="flex items-center gap-1.5 border border-gray-800 p-1 rounded-full bg-studio-dark scale-90 md:scale-100">
-      <button (click)="theory.showMetronome.set(!theory.showMetronome())"
-        class="text-[10px] md:text-xs font-bold uppercase tracking-wider px-3 md:px-4 py-2 rounded-full transition whitespace-nowrap"
-        [ngClass]="theory.showMetronome() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
-        Metronome
-      </button>
+    <!-- Theme & Language Toggle Row -->
+    <div class="flex items-center gap-3">
+      <!-- Language Toggle -->
+      <div class="flex bg-studio-dark border border-gray-800 rounded-full p-1 scale-90 md:scale-100">
+        <button (click)="lang.setLanguage('en')"
+                class="px-3 py-1 text-[10px] font-bold rounded-full transition"
+                [ngClass]="lang.currentLang() === 'en' ? 'bg-highlight text-white' : 'text-gray-500 hover:text-white'">
+          EN
+        </button>
+        <button (click)="lang.setLanguage('es')"
+                class="px-3 py-1 text-[10px] font-bold rounded-full transition"
+                [ngClass]="lang.currentLang() === 'es' ? 'bg-highlight text-white' : 'text-gray-500 hover:text-white'">
+          ES
+        </button>
+      </div>
 
-      <button (click)="theory.showCircle.set(!theory.showCircle())"
-        class="text-[10px] md:text-xs font-bold uppercase tracking-wider px-3 md:px-4 py-2 rounded-full transition whitespace-nowrap"
-        [ngClass]="theory.showCircle() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
-        Circle of Fifths
-      </button>
-
-      <button (click)="theory.isDarkMode.set(!theory.isDarkMode())"
-        class="w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition hover:bg-studio-darker">
-        <span *ngIf="theory.isDarkMode()">🌙</span>
-        <span *ngIf="!theory.isDarkMode()">☀️</span>
-      </button>
+      <!-- Module Toggles -->
+      <div class="flex items-center gap-1.5 border border-gray-800 p-1 rounded-full bg-studio-dark scale-90 md:scale-100">
+        <button (click)="theory.showMetronome.set(!theory.showMetronome())"
+          class="text-[10px] md:text-xs font-bold uppercase tracking-wider px-3 md:px-4 py-2 rounded-full transition whitespace-nowrap"
+          [ngClass]="theory.showMetronome() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
+          {{ lang.t('METRONOME') }}
+        </button>
+  
+        <button (click)="theory.showCircle.set(!theory.showCircle())"
+          class="text-[10px] md:text-xs font-bold uppercase tracking-wider px-3 md:px-4 py-2 rounded-full transition whitespace-nowrap"
+          [ngClass]="theory.showCircle() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
+          {{ lang.t('CIRCLE_OF_FIFTHS') }}
+        </button>
+  
+        <button (click)="theory.isDarkMode.set(!theory.isDarkMode())"
+          class="w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition hover:bg-studio-darker">
+          <span *ngIf="theory.isDarkMode()">🌙</span>
+          <span *ngIf="!theory.isDarkMode()">☀️</span>
+        </button>
+      </div>
     </div>
   </header>
 

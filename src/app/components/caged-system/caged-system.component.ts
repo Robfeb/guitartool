@@ -1,13 +1,14 @@
 import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TheoryService, STANDARD_SHAPES } from '../../services/theory.service';
+import { TranslationService } from '../../services/translation.service';
 
-const CAGED_INFO: Record<string, { color: string; colorDim: string; desc: string }> = {
-  'C': { color: 'bg-red-500',    colorDim: 'bg-red-900/50 border-red-700',    desc: 'Open C shape. Notes cluster around the 1st-3rd frets.' },
-  'A': { color: 'bg-orange-500', colorDim: 'bg-orange-900/50 border-orange-700', desc: 'Open A shape. Root on the A string (5th). Barred up the neck.' },
-  'G': { color: 'bg-yellow-500', colorDim: 'bg-yellow-900/50 border-yellow-700', desc: 'Open G shape. Wide stretch, root on low E and high e.' },
-  'E': { color: 'bg-green-500',  colorDim: 'bg-green-900/50 border-green-700',  desc: 'Open E shape. Root on low E string (6th). Most common barre.' },
-  'D': { color: 'bg-blue-500',   colorDim: 'bg-blue-900/50 border-blue-700',   desc: 'Open D shape. Root on the D string (4th). Higher register.' },
+const CAGED_INFO_BASE: Record<string, { color: string; colorDim: string; descKey: string }> = {
+  'C': { color: 'bg-red-500',    colorDim: 'bg-red-900/50 border-red-700',    descKey: 'DESC_C' },
+  'A': { color: 'bg-orange-500', colorDim: 'bg-orange-900/50 border-orange-700', descKey: 'DESC_A' },
+  'G': { color: 'bg-yellow-500', colorDim: 'bg-yellow-900/50 border-yellow-700', descKey: 'DESC_G' },
+  'E': { color: 'bg-green-500',  colorDim: 'bg-green-900/50 border-green-700',  descKey: 'DESC_E' },
+  'D': { color: 'bg-blue-500',   colorDim: 'bg-blue-900/50 border-blue-700',   descKey: 'DESC_D' },
 };
 
 function getShapeLetter(name: string): string {
@@ -29,7 +30,7 @@ function getShapeLetter(name: string): string {
       <!-- 1. Positions (Visible by default) -->
       <div class="flex flex-col gap-3" *ngIf="shapesForCurrent().length > 0">
         <p class="text-xs text-string font-bold uppercase tracking-wider">
-          {{ theory.effectiveRoot() }} {{ theory.effectiveChordName() }} — positions
+          {{ theory.effectiveRoot() }} {{ lang.t(theory.effectiveChordName().toUpperCase().replace(' ', '_')) }} — {{ lang.t('POSITIONS') }}
         </p>
         <div class="flex flex-wrap gap-2">
           <button *ngFor="let shape of shapesForCurrent(); let i = index"
@@ -52,10 +53,10 @@ function getShapeLetter(name: string): string {
         <button (click)="showSequence.set(!showSequence())"
                 class="w-full flex items-center justify-between group">
           <span class="text-[10px] text-string font-bold uppercase tracking-widest group-hover:text-white transition">
-            Sequence on the neck →
+            {{ lang.t('SEQUENCE') }} →
           </span>
           <span class="text-[10px] text-gray-500 group-hover:text-white transition uppercase font-bold tracking-wider">
-            {{ showSequence() ? '▲ Hide' : '▼ Show' }}
+            {{ showSequence() ? '▲ ' + lang.t('HIDE') : '▼ ' + lang.t('SHOW') }}
           </span>
         </button>
 
@@ -67,7 +68,7 @@ function getShapeLetter(name: string): string {
               {{ letter }}
             </div>
           </div>
-          <p class="text-[10px] text-gray-600">Shapes repeat every 12 frets. Each shape's root links to the next.</p>
+          <p class="text-[10px] text-gray-600">{{ lang.t('SEQUENCE_DESC') }}</p>
         </div>
       </div>
 
@@ -76,18 +77,18 @@ function getShapeLetter(name: string): string {
         <button (click)="showTheory.set(!showTheory())"
                 class="w-full flex items-center justify-between group">
           <span class="text-[10px] text-string font-bold uppercase tracking-widest group-hover:text-white transition">
-            CAGED System Theory
+            {{ lang.t('CAGED_SYSTEM') }} {{ lang.t('THEORY') }}
           </span>
           <span class="text-[10px] text-gray-500 group-hover:text-white transition uppercase font-bold tracking-wider">
-            {{ showTheory() ? '▲ Hide' : '▼ Show' }}
+            {{ showTheory() ? '▲ ' + lang.t('HIDE') : '▼ ' + lang.t('SHOW') }}
           </span>
         </button>
 
         <div *ngIf="showTheory()" class="mt-4 flex flex-col gap-5">
           <!-- Theory Summary -->
           <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-xs text-gray-400 leading-relaxed">
-            <p class="mb-2">The <strong class="text-white">CAGED system</strong> maps the entire fretboard using <strong class="text-white">5 repeating shapes</strong> derived from open chord positions: <strong class="text-highlight">C – A – G – E – D</strong>.</p>
-            <p>Each shape interlocks with the next. Learning all 5 for any chord means you can play it <em>anywhere on the neck</em>.</p>
+            <p class="mb-2 italic">{{ lang.t('CAGED_THEORY_SUM') }}</p>
+            <p>{{ lang.t('CAGED_THEORY_LINK') }}</p>
           </div>
 
           <!-- 5 Shapes Legend -->
@@ -96,7 +97,7 @@ function getShapeLetter(name: string): string {
                  class="flex-1 min-w-[44px] flex flex-col items-center gap-1 rounded-lg p-2 border"
                  [ngClass]="getInfo(letter).colorDim">
               <span class="text-xl font-black text-white">{{ letter }}</span>
-              <span class="text-[10px] text-gray-400 text-center leading-tight">{{ getInfo(letter).desc }}</span>
+              <span class="text-[10px] text-gray-400 text-center leading-tight">{{ lang.t(getInfo(letter).descKey) }}</span>
             </div>
           </div>
         </div>
@@ -107,6 +108,8 @@ function getShapeLetter(name: string): string {
 })
 export class CagedSystemComponent {
   theory = inject(TheoryService);
+  lang = inject(TranslationService);
+  
   cagedOrder = ['C', 'A', 'G', 'E', 'D'];
   repeatSequence = ['C','A','G','E','D','C','A','G','E','D','C','A'];
 
@@ -114,7 +117,7 @@ export class CagedSystemComponent {
   showSequence = signal(false);
 
   getInfo(letter: string) {
-    return CAGED_INFO[letter] ?? CAGED_INFO['E'];
+    return CAGED_INFO_BASE[letter] ?? CAGED_INFO_BASE['E'];
   }
 
   shapesForCurrent = computed(() => {
