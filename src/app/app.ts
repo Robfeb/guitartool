@@ -1,23 +1,49 @@
-import { Component, effect, signal } from '@angular/core';
+import { Component, effect, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlPanelComponent } from './components/control-panel/control-panel.component';
 import { FretboardComponent } from './components/fretboard/fretboard.component';
 import { CircleOfFifthsComponent } from './components/circle-of-fifths/circle-of-fifths.component';
+import { MetronomeComponent } from './components/metronome/metronome.component';
+import { TheoryService } from './services/theory.service';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, ControlPanelComponent, FretboardComponent, CircleOfFifthsComponent],
+  imports: [CommonModule, ControlPanelComponent, FretboardComponent, CircleOfFifthsComponent, MetronomeComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
-  title = 'guitartool';
-  showCircle = signal(false);
-  isDarkMode = signal(true);
+  theory = inject(TheoryService);
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    // Ignore if typing in an input or select
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA') {
+      return;
+    }
+
+    const key = event.key.toLowerCase();
+    
+    // Toggle Metronome
+    if (key === 'm') {
+      this.theory.metronomeIsPlaying.set(!this.theory.metronomeIsPlaying());
+    }
+
+    // Root Notes
+    const notesMap: Record<string, string> = {
+      'c': 'C', 'd': 'D', 'e': 'E', 'f': 'F', 'g': 'G', 'a': 'A', 'b': 'B'
+    };
+
+    if (notesMap[key]) {
+      this.theory.selectedRoot.set(notesMap[key]);
+      this.theory.previewRoot.set(null); // Clear preview when manually switching root
+    }
+  }
 
   constructor() {
      effect(() => {
-        if (this.isDarkMode()) {
+        if (this.theory.isDarkMode()) {
            document.documentElement.classList.add('dark');
         } else {
            document.documentElement.classList.remove('dark');

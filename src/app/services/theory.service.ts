@@ -19,6 +19,18 @@ export const TUNINGS: Record<string, TuningDef> = {
   'Open G': [
     { note: 'D', octave: 4 }, { note: 'B', octave: 3 }, { note: 'G', octave: 3 },
     { note: 'D', octave: 3 }, { note: 'G', octave: 2 }, { note: 'D', octave: 2 }
+  ],
+  'C6 (Lap Steel)': [
+    { note: 'E', octave: 3 }, { note: 'C', octave: 3 }, { note: 'A', octave: 2 },
+    { note: 'G', octave: 2 }, { note: 'E', octave: 2 }, { note: 'C', octave: 2 }
+  ],
+  'Open G (Lap Steel)': [
+    { note: 'D', octave: 4 }, { note: 'B', octave: 3 }, { note: 'G', octave: 3 },
+    { note: 'D', octave: 3 }, { note: 'B', octave: 2 }, { note: 'G', octave: 2 }
+  ],
+  'Open D (Lap Steel)': [
+    { note: 'D', octave: 4 }, { note: 'A', octave: 3 }, { note: 'F#', octave: 3 },
+    { note: 'D', octave: 3 }, { note: 'A', octave: 2 }, { note: 'D', octave: 2 }
   ]
 };
 
@@ -142,6 +154,32 @@ export class TheoryService {
   selectedTuning = signal('Standard');
   selectedProgressionStyle = signal('Pop');
   selectedVoicingIndex = signal(0);
+  
+  // UI State
+  isDarkMode = signal(true);
+  showCircle = signal(false);
+  
+  metronomeTempo = signal(120);
+  metronomeBeats = signal(4);
+  showMetronome = signal(false);
+  
+  metronomeClickEnabled = signal(true);
+  metronomeHasAccent = signal(true);
+  
+  selectedDrumStyle = signal<string>('None');
+  
+  // Mixer Volumes (0 to 1 range)
+  metronomeVolume = signal(0.8);
+  drumsVolume = signal(0.7);
+
+  // Global Visibility States for Persistence
+  showCagedPanel = signal(false);
+  showProgressionsPanel = signal(false);
+  showCagedTheory = signal(false);
+  showSequenceTheory = signal(false);
+
+  // Playback state (controlled by UI or Shortcuts)
+  metronomeIsPlaying = signal(false);
 
   // Preview signals: set by Songwriting Progressions chord buttons.
   // When non-null, the fretboard shows this chord WITHOUT changing the root note selector.
@@ -161,6 +199,24 @@ export class TheoryService {
         this.showFingers.set(state.showFingers ?? true);
         this.selectedTuning.set(state.selectedTuning ?? 'Standard');
         this.selectedProgressionStyle.set(state.selectedProgressionStyle ?? 'Pop');
+        
+        this.isDarkMode.set(state.isDarkMode ?? true);
+        this.showCircle.set(state.showCircle ?? false);
+        
+        // Metronome & Drums
+        this.metronomeTempo.set(state.metronomeTempo ?? 120);
+        this.metronomeBeats.set(state.metronomeBeats ?? 4);
+        this.showMetronome.set(state.showMetronome ?? false);
+        this.metronomeClickEnabled.set(state.metronomeClickEnabled ?? true);
+        this.metronomeHasAccent.set(state.metronomeHasAccent ?? true);
+        this.selectedDrumStyle.set(state.selectedDrumStyle ?? 'None');
+        this.metronomeVolume.set(state.metronomeVolume ?? 0.8);
+        this.drumsVolume.set(state.drumsVolume ?? 0.7);
+
+        this.showCagedPanel.set(state.showCagedPanel ?? false);
+        this.showProgressionsPanel.set(state.showProgressionsPanel ?? false);
+        this.showCagedTheory.set(state.showCagedTheory ?? false);
+        this.showSequenceTheory.set(state.showSequenceTheory ?? false);
       } catch (e) {
         console.error('Failed to load state', e);
       }
@@ -175,7 +231,21 @@ export class TheoryService {
         learningMode: this.learningMode(),
         showFingers: this.showFingers(),
         selectedTuning: this.selectedTuning(),
-        selectedProgressionStyle: this.selectedProgressionStyle()
+        selectedProgressionStyle: this.selectedProgressionStyle(),
+        isDarkMode: this.isDarkMode(),
+        showCircle: this.showCircle(),
+        metronomeTempo: this.metronomeTempo(),
+        metronomeBeats: this.metronomeBeats(),
+        showMetronome: this.showMetronome(),
+        metronomeClickEnabled: this.metronomeClickEnabled(),
+        metronomeHasAccent: this.metronomeHasAccent(),
+        selectedDrumStyle: this.selectedDrumStyle(),
+        metronomeVolume: this.metronomeVolume(),
+        drumsVolume: this.drumsVolume(),
+        showCagedPanel: this.showCagedPanel(),
+        showProgressionsPanel: this.showProgressionsPanel(),
+        showCagedTheory: this.showCagedTheory(),
+        showSequenceTheory: this.showSequenceTheory()
       };
       localStorage.setItem('guitarToolState', JSON.stringify(state));
     });

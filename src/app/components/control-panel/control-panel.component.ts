@@ -63,30 +63,30 @@ const ROMAN_MAP: Record<string, { offset: number; quality: string }> = {
       <!-- CAGED System -->
       <div class="border-t border-gray-800 pt-4">
         <button class="w-full flex items-center justify-between mb-3 group"
-                (click)="showCaged.set(!showCaged())">
+                (click)="theory.showCagedPanel.set(!theory.showCagedPanel())">
           <span class="text-xs text-string font-bold uppercase tracking-wider group-hover:text-white transition">
             CAGED System
           </span>
           <span class="text-xs text-gray-500 group-hover:text-white transition uppercase font-bold tracking-wider">
-            {{ showCaged() ? '▲ Hide' : '▼ Show' }}
+            {{ theory.showCagedPanel() ? '▲ Hide' : '▼ Show' }}
           </span>
         </button>
-        <app-caged-system *ngIf="showCaged()"></app-caged-system>
+        <app-caged-system *ngIf="theory.showCagedPanel()"></app-caged-system>
       </div>
 
       <!-- Songwriting Progressions — entire header is clickable -->
       <div class="border-t border-gray-800 pt-4">
         <button class="w-full flex items-center justify-between mb-3 group"
-                (click)="showProgressions.set(!showProgressions())">
+                (click)="theory.showProgressionsPanel.set(!theory.showProgressionsPanel())">
           <span class="text-xs text-string font-bold uppercase tracking-wider group-hover:text-white transition">
             Songwriting Progressions
           </span>
           <span class="text-xs text-gray-500 group-hover:text-white transition uppercase font-bold tracking-wider">
-            {{ showProgressions() ? '▲ Hide' : '▼ Show' }}
+            {{ theory.showProgressionsPanel() ? '▲ Hide' : '▼ Show' }}
           </span>
         </button>
 
-        <div *ngIf="showProgressions()" class="flex flex-col gap-3">
+        <div *ngIf="theory.showProgressionsPanel()" class="flex flex-col gap-3">
           <!-- Style Buttons -->
           <div class="flex flex-wrap gap-2">
             <button *ngFor="let style of progressionKeys"
@@ -158,8 +158,6 @@ export class ControlPanelComponent {
   notes = NOTES;
   tunings = Object.keys(TUNINGS);
   progressionKeys = Object.keys(CHORD_PROGRESSIONS);
-  showProgressions = signal(false);
-  showCaged = signal(false);
 
   get currentProgression() {
     return CHORD_PROGRESSIONS[this.theory.selectedProgressionStyle()]

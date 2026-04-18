@@ -14,34 +14,43 @@
     
     <!-- Theme & Modules Toggle Controls -->
     <div class="flex items-center gap-2 border border-gray-800 p-1.5 rounded-full bg-studio-dark">
-       <button (click)="showCircle.set(!showCircle())" 
+       <button (click)="theory.showMetronome.set(!theory.showMetronome())" 
                class="text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition"
-               [ngClass]="showCircle() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
+               [ngClass]="theory.showMetronome() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
+          Metronome
+       </button>
+
+       <button (click)="theory.showCircle.set(!theory.showCircle())" 
+               class="text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition"
+               [ngClass]="theory.showCircle() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
           Circle of Fifths
        </button>
 
-       <button (click)="isDarkMode.set(!isDarkMode())" 
+       <button (click)="theory.isDarkMode.set(!theory.isDarkMode())" 
                class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition hover:bg-studio-darker">
-          <span *ngIf="isDarkMode()">🌙</span>
-          <span *ngIf="!isDarkMode()">☀️</span>
+          <span *ngIf="theory.isDarkMode()">🌙</span>
+          <span *ngIf="!theory.isDarkMode()">☀️</span>
        </button>
     </div>
   </header>
   
   <main class="w-full max-w-7xl mx-auto flex flex-col gap-8">
     
+    <!-- Metronome (Top) -->
+    <app-metronome *ngIf="theory.showMetronome()"></app-metronome>
+    
     <!-- Top Section: Controls + optional side panels -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
       <!-- Control Panel: shrinks when panels are shown -->
       <div class="flex flex-col"
-           [ngClass]="showCircle() ? 'lg:col-span-2' : 'lg:col-span-3'">
+           [ngClass]="theory.showCircle() ? 'lg:col-span-2' : 'lg:col-span-3'">
         <app-control-panel class="flex-grow"></app-control-panel>
       </div>
 
       <!-- Side Panels Column -->
-      <div class="lg:col-span-1 flex flex-col gap-6" *ngIf="showCircle()">
-        <app-circle-of-fifths *ngIf="showCircle()"></app-circle-of-fifths>
+      <div class="lg:col-span-1 flex flex-col gap-6" *ngIf="theory.showCircle()">
+        <app-circle-of-fifths *ngIf="theory.showCircle()"></app-circle-of-fifths>
       </div>
 
     </div>
@@ -49,6 +58,57 @@
     <!-- Bottom Section: Detailed Fretboard -->
     <div class="w-full bg-studio-dark border border-gray-800 rounded-lg p-6 shadow-xl">
       <app-fretboard></app-fretboard>
+    </div>
+
+    <!-- Theory Reference Sections -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+       <!-- CAGED Theory -->
+       <div class="bg-studio-dark border border-gray-800 rounded-lg p-5 shadow-lg">
+         <button (click)="theory.showCagedTheory.set(!theory.showCagedTheory())"
+                 class="w-full flex items-center justify-between group">
+           <h3 class="text-sm font-black text-white tracking-widest uppercase">CAGED System — positions</h3>
+           <span class="text-[10px] text-gray-500 group-hover:text-white transition uppercase font-bold">
+             {{ theory.showCagedTheory() ? '▲ Hide Reference' : '▼ Show Reference' }}
+           </span>
+         </button>
+         
+         <div *ngIf="theory.showCagedTheory()" class="mt-4 text-xs text-gray-400 leading-relaxed space-y-3 animate-in fade-in slide-in-from-bottom-2">
+           <p>The <strong class="text-highlight">CAGED System</strong> is a way of mapping major chords and scales across the entire neck using five basic "open" chord shapes: C, A, G, E, and D.</p>
+           <ul class="list-disc pl-4 space-y-1">
+             <li><strong class="text-white">C-Shape:</strong> Bright voicing, root on the 5th and 2nd strings.</li>
+             <li><strong class="text-white">A-Shape:</strong> Powerful barre chord, root on the 5th string.</li>
+             <li><strong class="text-white">G-Shape:</strong> Wide reach, root on the 6th, 3rd, and 1st strings.</li>
+             <li><strong class="text-white">E-Shape:</strong> The most common barre chord, root on 6th, 4th, and 1st strings.</li>
+             <li><strong class="text-white">D-Shape:</strong> High voicing, root on the 4th and 2nd strings.</li>
+           </ul>
+           <p class="italic text-[10px]">As you move up the neck, these shapes connect in order: C → A → G → E → D → (repeat).</p>
+         </div>
+       </div>
+
+       <!-- Sequence Theory -->
+       <div class="bg-studio-dark border border-gray-800 rounded-lg p-5 shadow-lg">
+         <button (click)="theory.showSequenceTheory.set(!theory.showSequenceTheory())"
+                 class="w-full flex items-center justify-between group">
+           <h3 class="text-sm font-black text-white tracking-widest uppercase">Sequence on the neck →</h3>
+           <span class="text-[10px] text-gray-500 group-hover:text-white transition uppercase font-bold">
+             {{ theory.showSequenceTheory() ? '▲ Hide Reference' : '▼ Show Reference' }}
+           </span>
+         </button>
+
+         <div *ngIf="theory.showSequenceTheory()" class="mt-4 text-xs text-gray-400 leading-relaxed space-y-3 animate-in fade-in slide-in-from-bottom-2">
+           <p>Scale patterns follow a predictable cycle. Understanding the horizontal sequence helps you break out of vertical "boxes".</p>
+           <div class="grid grid-cols-2 gap-4">
+             <div>
+               <h4 class="text-white font-bold mb-1">Interval Cycle</h4>
+               <p>W - W - H - W - W - W - H</p>
+             </div>
+             <div>
+               <h4 class="text-white font-bold mb-1">Tonal Center</h4>
+               <p>Every pattern builds tension that must resolve back to the <strong class="text-root">Root Note</strong>.</p>
+             </div>
+           </div>
+         </div>
+       </div>
     </div>
     
   </main>
