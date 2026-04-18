@@ -1,0 +1,57 @@
+<div class="min-h-screen bg-studio-darker p-4 md:p-8 flex flex-col items-center selection:bg-highlight selection:text-white pb-32">
+  
+  <header class="w-full max-w-7xl mx-auto flex items-center justify-between mb-8 pb-4 border-b border-gray-800">
+    <div class="flex items-center gap-4">
+      <!-- Guitar Pick Icon -->
+      <div class="w-12 h-12 bg-gradient-to-br from-highlight to-blue-800 rounded-[50%_50%_0_50%] rotate-45 flex shadow-[0_0_20px_rgba(59,130,246,0.3)]"></div>
+      <div>
+        <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+          Rob's Guitar Tool
+        </h1>
+        <p class="text-xs text-gray-500 mt-1 uppercase tracking-widest font-bold">Interactive Fretboard & Theory</p>
+      </div>
+    </div>
+    
+    <!-- Theme & Modules Toggle Controls -->
+    <div class="flex items-center gap-2 border border-gray-800 p-1.5 rounded-full bg-studio-dark">
+       <button (click)="showCircle.set(!showCircle())" 
+               class="text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition"
+               [ngClass]="showCircle() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
+          Circle of Fifths
+       </button>
+
+       <button (click)="isDarkMode.set(!isDarkMode())" 
+               class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition hover:bg-studio-darker">
+          <span *ngIf="isDarkMode()">🌙</span>
+          <span *ngIf="!isDarkMode()">☀️</span>
+       </button>
+    </div>
+  </header>
+  
+  <main class="w-full max-w-7xl mx-auto flex flex-col gap-8">
+    
+    <!-- Top Section: Controls + optional side panels -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Control Panel: shrinks when panels are shown -->
+      <div class="flex flex-col"
+           [ngClass]="showCircle() ? 'lg:col-span-2' : 'lg:col-span-3'">
+        <app-control-panel class="flex-grow"></app-control-panel>
+      </div>
+
+      <!-- Side Panels Column -->
+      <div class="lg:col-span-1 flex flex-col gap-6" *ngIf="showCircle()">
+        <app-circle-of-fifths *ngIf="showCircle()"></app-circle-of-fifths>
+      </div>
+
+    </div>
+    
+    <!-- Bottom Section: Detailed Fretboard -->
+    <div class="w-full bg-studio-dark border border-gray-800 rounded-lg p-6 shadow-xl">
+      <app-fretboard></app-fretboard>
+    </div>
+    
+  </main>
+  
+</div>
+
