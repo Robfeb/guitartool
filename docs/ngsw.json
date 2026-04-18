@@ -1,0 +1,67 @@
+{
+  "configVersion": 1,
+  "timestamp": 1776549201350,
+  "index": "/guitartool/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/guitartool/favicon.ico",
+        "/guitartool/index.html",
+        "/guitartool/main-GS5WY4R4.js",
+        "/guitartool/manifest.webmanifest",
+        "/guitartool/styles-4XCWEKLK.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/guitartool/guitar.png",
+        "/guitartool/icons/icon-192x192.png",
+        "/guitartool/icons/icon-512x512.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/guitartool/favicon.ico": "5c02f3381778d912f109197ce7866a4b7d38acfb",
+    "/guitartool/guitar.png": "0b2c40496b70d8299de83f3274d5703d95e68e0a",
+    "/guitartool/icons/icon-192x192.png": "5b5dd40d950f1ec6eaee2f46b5a9492a68edcc14",
+    "/guitartool/icons/icon-512x512.png": "5b5dd40d950f1ec6eaee2f46b5a9492a68edcc14",
+    "/guitartool/index.html": "d50886cb73da2a0131c9da372a262e749ff60ff2",
+    "/guitartool/main-GS5WY4R4.js": "10fd6e4f959c45f80dda5d12d93cf503dd7cb129",
+    "/guitartool/manifest.webmanifest": "b8e3d6a3d30d436db762186683682cd0ca48dad7",
+    "/guitartool/styles-4XCWEKLK.css": "08003d5e8d1638a50b320b819433ef1d9a7151cc"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}

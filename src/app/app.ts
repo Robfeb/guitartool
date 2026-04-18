@@ -30,14 +30,9 @@ export class App {
       this.theory.metronomeIsPlaying.set(!this.theory.metronomeIsPlaying());
     }
 
-    // Root Notes
-    const notesMap: Record<string, string> = {
-      'c': 'C', 'd': 'D', 'e': 'E', 'f': 'F', 'g': 'G', 'a': 'A', 'b': 'B'
-    };
-
-    if (notesMap[key]) {
-      this.theory.selectedRoot.set(notesMap[key]);
-      this.theory.previewRoot.set(null); // Clear preview when manually switching root
+    // Toggle Metronome
+    if (key === 'm') {
+      this.theory.metronomeIsPlaying.set(!this.theory.metronomeIsPlaying());
     }
   }
 

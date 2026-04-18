@@ -15,38 +15,38 @@ interface DrumPattern {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="bg-studio-dark border border-gray-800 rounded-lg p-5 shadow-xl flex flex-wrap items-stretch gap-6 animate-in fade-in slide-in-from-top duration-300">
+    <div class="bg-studio-dark border border-gray-800 rounded-lg p-4 md:p-5 shadow-xl flex flex-col lg:flex-row items-stretch gap-6 animate-in fade-in slide-in-from-top duration-300">
       
       <!-- Play/Mixer Column -->
-      <div class="flex flex-col items-center justify-between gap-4 border-r border-gray-800 pr-6">
+      <div class="flex flex-row lg:flex-col items-center justify-between gap-6 lg:gap-4 border-b lg:border-b-0 lg:border-r border-gray-800 pb-4 lg:pb-0 lg:pr-6">
         <button (click)="togglePlay()"
-                class="w-14 h-14 rounded-full flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 shadow-lg border-4 border-studio-darker"
+                class="w-14 h-14 rounded-full flex-shrink-0 flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 shadow-lg border-4 border-studio-darker"
                 [ngClass]="theory.metronomeIsPlaying() ? 'bg-red-500 hover:bg-red-400 text-white' : 'bg-highlight hover:bg-blue-400 text-white'">
           <svg *ngIf="!theory.metronomeIsPlaying()" class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"></path></svg>
           <svg *ngIf="theory.metronomeIsPlaying()" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4h12v12H4z"></path></svg>
         </button>
 
         <!-- Mixer -->
-        <div class="flex gap-4 h-24 items-end pb-2">
+        <div class="flex gap-4 h-20 lg:h-24 items-end pb-1">
            <div class="flex flex-col items-center gap-1">
              <input type="range" orient="vertical" min="0" max="1" step="0.01" 
                     [ngModel]="theory.metronomeVolume()" (ngModelChange)="theory.metronomeVolume.set($event)"
-                    class="h-16 w-1 accent-highlight appearance-none bg-gray-700 rounded-full cursor-pointer vertical-range">
+                    class="h-14 lg:h-16 w-1 accent-highlight appearance-none bg-gray-700 rounded-full cursor-pointer vertical-range">
              <span class="text-[8px] text-gray-500 font-bold tracking-tighter uppercase">Click</span>
            </div>
            <div class="flex flex-col items-center gap-1">
              <input type="range" orient="vertical" min="0" max="1" step="0.01" 
                     [ngModel]="theory.drumsVolume()" (ngModelChange)="theory.drumsVolume.set($event)"
-                    class="h-16 w-1 accent-red-500 appearance-none bg-gray-700 rounded-full cursor-pointer vertical-range">
+                    class="h-14 lg:h-16 w-1 accent-red-500 appearance-none bg-gray-700 rounded-full cursor-pointer vertical-range">
              <span class="text-[8px] text-gray-500 font-bold tracking-tighter uppercase">Drums</span>
            </div>
         </div>
       </div>
 
       <!-- Tempo & Click Controls -->
-      <div class="flex flex-col gap-4">
-        <div class="flex items-end gap-6">
-           <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-4 py-2 lg:py-0">
+        <div class="flex flex-col sm:flex-row items-start sm:items-end gap-6">
+           <div class="flex flex-col gap-1 w-full sm:w-auto">
              <label class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Tempo (BPM)</label>
              <div class="flex items-center gap-2">
                <button (click)="adjustTempo(-1)" class="w-8 h-8 rounded bg-gray-800 text-white hover:bg-gray-700 flex items-center justify-center font-bold shadow-sm transition active:scale-90">-</button>
@@ -56,11 +56,11 @@ interface DrumPattern {
              </div>
            </div>
 
-           <div class="flex flex-col gap-1">
-             <label class="text-[10px] text-gray-500 uppercase tracking-widest font-bold text-center">Presets</label>
-             <div class="flex gap-1">
+           <div class="flex flex-col gap-1 w-full sm:w-auto">
+             <label class="text-[10px] text-gray-500 uppercase tracking-widest font-bold sm:text-center">Presets</label>
+             <div class="flex gap-1 overflow-x-auto pb-1 no-scrollbar">
                <button *ngFor="let p of [60, 80, 100, 120]" (click)="updateTempo(p)"
-                       class="w-10 h-8 rounded bg-gray-800 text-[10px] font-bold transition-all border border-transparent"
+                       class="flex-1 sm:w-10 h-8 rounded bg-gray-800 text-[10px] font-bold transition-all border border-transparent whitespace-nowrap px-2"
                        [ngClass]="theory.metronomeTempo() === p ? 'border-highlight text-highlight' : 'text-gray-400 hover:text-white'">
                  {{ p }}
                </button>
@@ -69,13 +69,13 @@ interface DrumPattern {
         </div>
 
         <!-- Click Toggle & Accent -->
-        <div class="flex items-center gap-4 bg-studio-darker/50 p-2 rounded-lg border border-gray-800">
+        <div class="flex flex-wrap items-center gap-4 bg-studio-darker/50 p-2 rounded-lg border border-gray-800">
            <label class="flex items-center gap-2 cursor-pointer group">
              <input type="checkbox" [ngModel]="theory.metronomeClickEnabled()" (ngModelChange)="theory.metronomeClickEnabled.set($event)"
                     class="accent-highlight w-4 h-4 rounded">
              <span class="text-[10px] font-bold text-gray-400 group-hover:text-white uppercase tracking-wider">Metronome Click</span>
            </label>
-           <div class="w-px h-4 bg-gray-800 mx-2"></div>
+           <div class="hidden sm:block w-px h-4 bg-gray-800 mx-2"></div>
            <label class="flex items-center gap-2 cursor-pointer group">
              <input type="checkbox" [ngModel]="theory.metronomeHasAccent()" (ngModelChange)="theory.metronomeHasAccent.set($event)"
                     class="accent-red-500 w-4 h-4 rounded">
@@ -85,12 +85,12 @@ interface DrumPattern {
       </div>
 
       <!-- Rhythm Styles -->
-      <div class="flex flex-col gap-1 border-l border-gray-800 pl-6">
+      <div class="flex flex-col gap-1 border-t lg:border-t-0 lg:border-l border-gray-800 pt-4 lg:pt-0 lg:pl-6">
         <label class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Drum Rhythm</label>
-        <div class="grid grid-cols-4 gap-1.5">
+        <div class="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
           <button *ngFor="let style of drumStyles"
                   (click)="theory.selectedDrumStyle.set(style)"
-                  class="px-2 py-2 rounded text-[10px] font-black transition-all border border-transparent text-center"
+                  class="px-2 py-2 rounded text-[9px] sm:text-[10px] font-black transition-all border border-transparent text-center"
                   [ngClass]="theory.selectedDrumStyle() === style 
                     ? 'bg-red-500 text-white shadow-lg scale-105' 
                     : 'bg-gray-800 text-gray-500 hover:text-white hover:bg-gray-700'">
@@ -100,8 +100,8 @@ interface DrumPattern {
       </div>
 
       <!-- Visual Indicator -->
-      <div class="flex-grow flex flex-col justify-center gap-4 border-l border-gray-800 pl-6 min-w-[150px]">
-        <div class="flex items-center gap-3">
+      <div class="flex-grow flex flex-col justify-center gap-4 border-t lg:border-t-0 lg:border-l border-gray-800 pt-4 lg:pt-0 lg:pl-6 min-w-[150px]">
+        <div class="flex items-center justify-center lg:justify-start gap-3">
           <div *ngFor="let i of beatArray(); let idx = index"
                class="w-4 h-4 rounded-full transition-all duration-75"
                [ngClass]="{
@@ -118,9 +118,9 @@ interface DrumPattern {
              <span class="text-[9px] text-gray-500 uppercase font-black tracking-widest">Time Signature</span>
              <span class="text-[10px] font-mono text-highlight">{{ currentBeat() }} / {{ theory.metronomeBeats() }}</span>
            </div>
-           <div class="flex gap-1">
+           <div class="flex gap-1 overflow-x-auto no-scrollbar">
              <button *ngFor="let b of [2, 3, 4, 6]" (click)="theory.metronomeBeats.set(b)"
-                     class="flex-1 h-6 rounded text-[9px] font-bold"
+                     class="flex-1 h-6 rounded text-[9px] font-bold min-w-[30px]"
                      [ngClass]="theory.metronomeBeats() === b ? 'bg-highlight text-white' : 'bg-studio-darker text-gray-600'">
                {{ b }}
              </button>
