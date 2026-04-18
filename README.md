@@ -2,6 +2,11 @@
 
 Welcome to **Rob's Guitar Tool**, a high-performance, interactive guitar theory workstation designed for songwriters, learners, and teachers. Built with modern web technologies, it provides a "studio-first" experience for mapping out the fretboard and exploring musical theory.
 
+## 📱 Progressive Web App (PWA)
+- **Install to Home Screen**: Fully installable as a standalone app on iOS, Android, and Desktop.
+- **Offline Ready**: Core features and assets are cached for offline practice without an internet connection.
+- **Mobile Optimized**: Enhanced layout for one-handed use and touch interaction on mobile devices.
+
 ## ✨ Key Features
 
 ### 🎹 Interactive Fretboard
@@ -37,6 +42,7 @@ Welcome to **Rob's Guitar Tool**, a high-performance, interactive guitar theory 
 - **Framework**: [Angular 21](https://angular.dev/) (utilizing Signals & Standalone Components)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Audio**: [Tone.js](https://tonejs.github.io/)
+- **PWA**: Angular Service Worker with custom manifest support.
 - **State**: Native Angular Signal-based state management with Persistence Effect.
 
 ## 📦 Getting Started
