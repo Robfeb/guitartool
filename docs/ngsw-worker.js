@@ -619,7 +619,11 @@ ${error.stack}`;
     newRequestWithMetadata(url, options) {
       return this.adapter.newRequest(url, {
         headers: options.headers,
-        redirect: options.redirect
+        redirect: options.redirect,
+        mode: options.mode === "navigate" ? undefined : options.mode,
+        credentials: "omit",
+        referrer: options.referrer,
+        referrerPolicy: options.referrerPolicy
       });
     }
     /**
