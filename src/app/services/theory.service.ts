@@ -321,6 +321,47 @@ export class TheoryService {
     });
   });
 
+  private calculateShapeShift(shape: any, rootNote: string, stdTuning: any[]): number {
+    const stdStringNote = stdTuning[shape.rootString].note;
+    const stdNoteIdx = NOTES.indexOf(stdStringNote);
+    const targetNoteIdx = NOTES.indexOf(rootNote);
+
+    let targetRootFret = targetNoteIdx - stdNoteIdx;
+    if (targetRootFret < 0) targetRootFret += 12;
+
+    while (targetRootFret < shape.rootFretInShape) {
+        targetRootFret += 12;
+    }
+
+    return targetRootFret - shape.rootFretInShape;
+  }
+
+  private calculateAbsoluteFrets(shape: any, shift: number, curTuning: any[], stdTuning: any[], maxFretLimit: number): { valid: boolean; frets: (number | null)[] } {
+    let valid = true;
+    const absoluteFrets: (number | null)[] = [null, null, null, null, null, null];
+
+    for (let i = 0; i < 6; i++) {
+       let fretDef = shape.frets[i];
+       if (fretDef === null) {
+           absoluteFrets[i] = null;
+       } else {
+           let finalFret = fretDef + shift;
+           const sIdx = NOTES.indexOf(stdTuning[i].note);
+           const cIdx = NOTES.indexOf(curTuning[i].note);
+           let delta = sIdx - cIdx;
+
+           if (delta < -6) delta += 12;
+           if (delta > 6) delta -= 12;
+
+           finalFret += delta;
+
+           if (finalFret > maxFretLimit || finalFret < 0) valid = false;
+           absoluteFrets[i] = finalFret;
+       }
+    }
+    return { valid, frets: absoluteFrets };
+  }
+
   // Generated voicings
   generatedVoicings = computed(() => {
     if (this.selectedType() !== 'Chord') return [];
@@ -336,49 +377,17 @@ export class TheoryService {
     const stdTuning = TUNINGS['Standard'];
 
     for (const shape of shapes) {
-        const stdStringNote = stdTuning[shape.rootString].note;
-        const stdNoteIdx = NOTES.indexOf(stdStringNote);
-        const targetNoteIdx = NOTES.indexOf(rootNote);
-        
-        let targetRootFret = targetNoteIdx - stdNoteIdx;
-        if (targetRootFret < 0) targetRootFret += 12;
-        
-        while (targetRootFret < shape.rootFretInShape) {
-            targetRootFret += 12;
-        }
-        
-        const shift = targetRootFret - shape.rootFretInShape;
+        const shift = this.calculateShapeShift(shape, rootNote, stdTuning);
         if (shift < 0) continue;
         
-        let valid = true;
-        const absoluteFrets: (number | null)[] = [null, null, null, null, null, null];
-        
-        for (let i = 0; i < 6; i++) {
-           let fretDef = shape.frets[i];
-           if (fretDef === null) {
-               absoluteFrets[i] = null;
-           } else {
-               let finalFret = fretDef + shift;
-               const sIdx = NOTES.indexOf(stdTuning[i].note);
-               const cIdx = NOTES.indexOf(curTuning[i].note);
-               let delta = sIdx - cIdx;
-               
-               if (delta < -6) delta += 12; 
-               if (delta > 6) delta -= 12;
-               
-               finalFret += delta;
-               
-               if (finalFret > maxFretLimit || finalFret < 0) valid = false;
-               absoluteFrets[i] = finalFret;
-           }
-        }
+        const { valid, frets } = this.calculateAbsoluteFrets(shape, shift, curTuning, stdTuning, maxFretLimit);
         
         if (valid) {
-           const sig = absoluteFrets.join(',');
+           const sig = frets.join(',');
            if (!voicings.some(v => v.frets.join(',') === sig)) {
               voicings.push({ 
-                  frets: absoluteFrets,
-                  fingers: this.generateFingers(absoluteFrets)
+                  frets: frets,
+                  fingers: this.generateFingers(frets)
               });
            }
         }
