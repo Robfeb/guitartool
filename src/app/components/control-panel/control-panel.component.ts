@@ -1,6 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { TheoryService, NOTES, SCALES, CHORDS, TUNINGS, CHORD_PROGRESSIONS } from '../../services/theory.service';
 import { TranslationService } from '../../services/translation.service';
 import { CagedSystemComponent } from '../caged-system/caged-system.component';
@@ -28,7 +27,7 @@ const ROMAN_MAP: Record<string, { offset: number; quality: string }> = {
 @Component({
   selector: 'app-control-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule, CagedSystemComponent],
+  imports: [CommonModule, CagedSystemComponent],
   template: `
     <div class="bg-studio-dark border border-gray-800 rounded-lg p-4 md:p-6 shadow-xl flex flex-col gap-4">
       
