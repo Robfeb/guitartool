@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { TheoryService } from './theory.service';
 
 export type Lang = 'en' | 'es';
