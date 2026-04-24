@@ -196,6 +196,8 @@ export class FretboardComponent {
 
   @HostListener('window:keydown', ['$event'])
   async handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.repeat) return;
+
     const target = event.target as HTMLElement;
     if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA') {
       return;
@@ -299,11 +301,32 @@ export class FretboardComponent {
 
     const notesToPlay: string[] = [];
     const board = this.fretboard();
-    for (let i = board.length - 1; i >= 0; i--) {
-      const stringNotes = board[i];
-      for (const note of stringNotes) {
-        if (note.interval !== null) {
-          notesToPlay.push(this.theory.getFrequency(note.note, note.octave));
+
+    if (this.theory.selectedType() === 'Chord') {
+      const voicings = this.theory.generatedVoicings();
+      let idx = this.theory.selectedVoicingIndex();
+      if (idx >= voicings.length) idx = 0;
+      const currentVoicing = voicings[idx];
+
+      if (currentVoicing) {
+        for (let i = board.length - 1; i >= 0; i--) {
+          const targetFret = currentVoicing.frets[i];
+          if (targetFret !== null && targetFret < board[i].length) {
+            const noteInfo = board[i][targetFret];
+            if (noteInfo && noteInfo.interval !== null) {
+              notesToPlay.push(this.theory.getFrequency(noteInfo.note, noteInfo.octave));
+            }
+          }
+        }
+      }
+    } else {
+      // Fallback for Scale/other types just in case strumChord is called
+      for (let i = board.length - 1; i >= 0; i--) {
+        const stringNotes = board[i];
+        for (const note of stringNotes) {
+          if (note.interval !== null) {
+            notesToPlay.push(this.theory.getFrequency(note.note, note.octave));
+          }
         }
       }
     }
