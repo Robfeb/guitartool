@@ -259,8 +259,9 @@ export class MetronomeComponent implements OnDestroy {
   }
 
   adjustTempo(delta: number) { this.updateTempo(this.theory.metronomeTempo() + delta); }
-  updateTempo(val: any) {
-    let num = Number(val);
+  updateTempo(val: string | number) {
+    if (typeof val === 'string' && val.trim() === '') return;
+    const num = Number(val);
     if (isNaN(num)) return;
     this.theory.metronomeTempo.set(Math.max(10, Math.min(240, num)));
   }
