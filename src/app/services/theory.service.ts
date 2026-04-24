@@ -1,5 +1,5 @@
-import { Injectable, signal, computed, effect, inject } from '@angular/core';
-import { TranslationService, Lang } from './translation.service';
+import { Injectable, signal, computed, effect } from '@angular/core';
+import { Lang } from './translation.service';
 
 export interface FretNote {
   note: string;
