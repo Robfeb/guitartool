@@ -1,21 +1,25 @@
-import { Component, effect, inject, HostListener } from '@angular/core';
+import { Component, effect, inject, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlPanelComponent } from './components/control-panel/control-panel.component';
 import { FretboardComponent } from './components/fretboard/fretboard.component';
 import { CircleOfFifthsComponent } from './components/circle-of-fifths/circle-of-fifths.component';
 import { MetronomeComponent } from './components/metronome/metronome.component';
+import { GameSongComponent } from './components/games/game-song.component';
+import { GameFlashcardComponent } from './components/games/game-flashcard.component';
+import { TutorialComponent } from './components/tutorial/tutorial.component';
 import { TheoryService } from './services/theory.service';
 import { TranslationService } from './services/translation.service';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, ControlPanelComponent, FretboardComponent, CircleOfFifthsComponent, MetronomeComponent],
+  imports: [CommonModule, ControlPanelComponent, FretboardComponent, CircleOfFifthsComponent, MetronomeComponent, GameSongComponent, GameFlashcardComponent, TutorialComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
   theory = inject(TheoryService);
   lang = inject(TranslationService);
+  menuOpen = signal(false);
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {

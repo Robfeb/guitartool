@@ -124,6 +124,25 @@ export const CHORD_PROGRESSIONS: Record<string, { formula: string; descriptionKe
   'Grunge/Alt':      { formula: 'I – bIII – IV – iv',  descriptionKey: 'DESC_GRUNGE' },
 };
 
+export const ROMAN_MAP: Record<string, { offset: number; quality: string }> = {
+  'I':    { offset: 0,  quality: '' },
+  'II':   { offset: 2,  quality: '' },
+  'III':  { offset: 4,  quality: '' },
+  'IV':   { offset: 5,  quality: '' },
+  'V':    { offset: 7,  quality: '' },
+  'VI':   { offset: 9,  quality: '' },
+  'VII':  { offset: 11, quality: '' },
+  'bII':  { offset: 1,  quality: '' },
+  'bIII': { offset: 3,  quality: '' },
+  'bVI':  { offset: 8,  quality: '' },
+  'bVII': { offset: 10, quality: '' },
+  'ii':   { offset: 2,  quality: 'm' },
+  'iii':  { offset: 4,  quality: 'm' },
+  'iv':   { offset: 5,  quality: 'm' },
+  'vi':   { offset: 9,  quality: 'm' },
+  'vii':  { offset: 11, quality: 'dim' },
+};
+
 @Injectable({
   providedIn: 'root'
 })
@@ -170,6 +189,12 @@ export class TheoryService {
   previewRoot = signal<string | null>(null);
   previewChordName = signal<string | null>(null);
 
+  // Game & Tutorial States
+  showGamesPanel = signal(false);
+  activeGame = signal<'song'|'flashcard'|'none'>('none');
+  showTutorial = signal(false);
+  tutorialCompleted = signal(false);
+
   constructor() {
     // Load state from localStorage
     const saved = localStorage.getItem('guitarToolState');
@@ -199,13 +224,21 @@ export class TheoryService {
         this.metronomeVolume.set(state.metronomeVolume ?? 0.8);
         this.drumsVolume.set(state.drumsVolume ?? 0.7);
 
-        this.showCagedPanel.set(state.showCagedPanel ?? false);
-        this.showProgressionsPanel.set(state.showProgressionsPanel ?? false);
         this.showCagedTheory.set(state.showCagedTheory ?? false);
         this.showSequenceTheory.set(state.showSequenceTheory ?? false);
+        
+        this.showGamesPanel.set(state.showGamesPanel ?? false);
+        this.tutorialCompleted.set(state.tutorialCompleted ?? false);
+        // Automatically show tutorial if not completed
+        if (!this.tutorialCompleted()) {
+          this.showTutorial.set(true);
+        }
       } catch (e) {
         console.error('Failed to load state', e);
       }
+    } else {
+      // First time user
+      this.showTutorial.set(true);
     }
 
     // Persist state on every change
@@ -230,10 +263,10 @@ export class TheoryService {
         selectedDrumStyle: this.selectedDrumStyle(),
         metronomeVolume: this.metronomeVolume(),
         drumsVolume: this.drumsVolume(),
-        showCagedPanel: this.showCagedPanel(),
-        showProgressionsPanel: this.showProgressionsPanel(),
         showCagedTheory: this.showCagedTheory(),
-        showSequenceTheory: this.showSequenceTheory()
+        showSequenceTheory: this.showSequenceTheory(),
+        showGamesPanel: this.showGamesPanel(),
+        tutorialCompleted: this.tutorialCompleted()
       };
       localStorage.setItem('guitarToolState', JSON.stringify(state));
     });
@@ -458,4 +491,47 @@ export class TheoryService {
          });
      }
   });
+
+  // Helper to parse progression formula
+  resolveProgressionChords(rootNote: string, formula: string): { roman: string; note: string; quality: string; chordName: string }[] {
+    if (!formula) return [];
+    const rootIdx = NOTES.indexOf(rootNote);
+    const degrees = formula.split(/\s*[–\-]\s*/).map(d => d.trim()).filter(Boolean);
+
+    const qualityToName: Record<string, string> = {
+      '':    'Major',
+      'm':   'Minor',
+      'dim': 'Diminished',
+    };
+
+    return degrees.map(roman => {
+      const entry = ROMAN_MAP[roman];
+      if (!entry) return { roman, note: roman, quality: '', chordName: 'Major' };
+      const noteIdx = (rootIdx + entry.offset) % 12;
+      return { 
+        roman, 
+        note: NOTES[noteIdx], 
+        quality: entry.quality,
+        chordName: qualityToName[entry.quality] ?? 'Major'
+      };
+    });
+  }
+
+  getShapesForChord(chordName: string) {
+    return STANDARD_SHAPES[chordName] || [];
+  }
+
+  currentCagedShape(): string | null {
+    const chordName = this.effectiveChordName();
+    const shapes = this.getShapesForChord(chordName);
+    const idx = this.selectedVoicingIndex();
+    const shape = shapes[idx];
+    if (!shape) return null;
+    if (shape.name.includes('E-Shape')) return 'E';
+    if (shape.name.includes('A-Shape')) return 'A';
+    if (shape.name.includes('G-Shape')) return 'G';
+    if (shape.name.includes('D-Shape')) return 'D';
+    if (shape.name.includes('C-Shape')) return 'C';
+    return null;
+  }
 }

@@ -97,7 +97,28 @@ export class TranslationService {
       MODAL_INTERCHANGE: "Modal Interchange",
       // UI Misc
       PREV: "Prev",
-      NEXT: "Next"
+      NEXT: "Next",
+      // Games & Tutorial
+      GAMES: "Games",
+      HELP: "Help",
+      PLAY_A_SONG: "Play a Song",
+      FLASHCARDS: "Flashcards",
+      START: "Start",
+      STOP: "Stop",
+      NEXT_CHORD: "Next Chord",
+      SHOW_ANSWER: "Show Answer",
+      DIFFICULTY: "Difficulty",
+      EASY: "Easy",
+      HARD: "Hard",
+      SCORE: "Score",
+      CLOSE: "Close",
+      TUTORIAL: "Tutorial",
+      TUTORIAL_WELCOME: "Welcome to Guitar Tool! Let's take a quick tour.",
+      TUTORIAL_METRONOME: "Use the Metronome to keep time. You can adjust tempo and toggle drums.",
+      TUTORIAL_CIRCLE: "The Circle of Fifths helps you find related keys and modes.",
+      TUTORIAL_FRETBOARD: "The Fretboard displays the selected scale or chord. It automatically updates based on your selections.",
+      TUTORIAL_CAGED: "The CAGED system maps the entire fretboard using 5 repeating shapes.",
+      TUTORIAL_GAMES: "Try the new interactive games: 'Play a Song' to practice progressions in time, and 'Flashcards' to test your fretboard knowledge."
     },
     es: {
       APP_TITLE: "Guitar Tool de Rob",
@@ -183,7 +204,28 @@ export class TranslationService {
       MODAL_INTERCHANGE: "Intercambio Modal",
       // UI Misc
       PREV: "Ant",
-      NEXT: "Sig"
+      NEXT: "Sig",
+      // Games & Tutorial
+      GAMES: "Juegos",
+      HELP: "Ayuda",
+      PLAY_A_SONG: "Tocar una Canción",
+      FLASHCARDS: "Tarjetas",
+      START: "Iniciar",
+      STOP: "Detener",
+      NEXT_CHORD: "Siguiente Acorde",
+      SHOW_ANSWER: "Mostrar Respuesta",
+      DIFFICULTY: "Dificultad",
+      EASY: "Fácil",
+      HARD: "Difícil",
+      SCORE: "Puntuación",
+      CLOSE: "Cerrar",
+      TUTORIAL: "Tutorial",
+      TUTORIAL_WELCOME: "¡Bienvenido a Guitar Tool! Demos un rápido paseo.",
+      TUTORIAL_METRONOME: "Usa el Metrónomo para mantener el tiempo. Puedes ajustar el tempo y activar la batería.",
+      TUTORIAL_CIRCLE: "El Círculo de Quintas te ayuda a encontrar tonos y modos relacionados.",
+      TUTORIAL_FRETBOARD: "El Diapasón muestra la escala o acorde seleccionado. Se actualiza automáticamente.",
+      TUTORIAL_CAGED: "El sistema CAGED mapea todo el mástil usando 5 formas repetitivas.",
+      TUTORIAL_GAMES: "Prueba los nuevos juegos: 'Tocar una Canción' para practicar progresiones a tempo, y 'Tarjetas' para evaluar tu conocimiento del mástil."
     }
   };
 

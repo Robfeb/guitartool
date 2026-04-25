@@ -2,86 +2,137 @@
   class="min-h-screen bg-studio-darker p-4 md:p-8 flex flex-col items-center selection:bg-highlight selection:text-white pb-32">
 
   <header
-    class="w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 mb-8 pb-4 border-b border-gray-800">
+    class="w-full max-w-7xl mx-auto flex items-center justify-between gap-6 mb-8 pb-4 border-b border-gray-800 relative z-50">
+    <!-- Logo Section -->
     <div class="flex items-center gap-4">
-      <!-- Guitar Pick Icon -->
       <div
-        class="w-12 h-12 bg-gradient-to-br from-highlight to-blue-800 rounded-[50%_50%_0_50%] rotate-45 flex shadow-[0_0_20px_rgba(59,130,246,0.3)] border-2 border-white/20 overflow-hidden">
+        class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-highlight to-blue-800 rounded-[50%_50%_0_50%] rotate-45 flex shadow-[0_0_20px_rgba(59,130,246,0.3)] border-2 border-white/20 overflow-hidden shrink-0">
         <img src="icons/icon-192x192.png" class="-rotate-45 w-full h-full object-cover scale-150"
-          alt="Rob's Guitar Tool Logo">
+          alt="Logo">
       </div>
-      <div>
-        <h1
-          class="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+      <div class="hidden sm:block">
+        <h1 class="text-lg md:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 leading-none">
           {{ lang.t('APP_TITLE') }}
         </h1>
-        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-widest font-bold">{{ lang.t('APP_SUBTITLE') }}</p>
+        <p class="text-[9px] text-gray-500 mt-1 uppercase tracking-widest font-black">{{ lang.t('APP_SUBTITLE') }}</p>
       </div>
     </div>
 
-    <!-- Theme & Language Toggle Row -->
-    <div class="flex items-center gap-3">
-      <!-- Language Toggle -->
-      <div class="flex bg-studio-dark border border-gray-800 rounded-full p-1 scale-90 md:scale-100">
-        <button (click)="lang.setLanguage('en')"
-                class="px-3 py-1 text-[10px] font-bold rounded-full transition"
-                [ngClass]="lang.currentLang() === 'en' ? 'bg-highlight text-white' : 'text-gray-500 hover:text-white'">
-          EN
-        </button>
-        <button (click)="lang.setLanguage('es')"
-                class="px-3 py-1 text-[10px] font-bold rounded-full transition"
-                [ngClass]="lang.currentLang() === 'es' ? 'bg-highlight text-white' : 'text-gray-500 hover:text-white'">
-          ES
-        </button>
+    <!-- Mobile Menu Toggle -->
+    <button (click)="menuOpen.set(!menuOpen())" class="md:hidden p-2 text-gray-400 hover:text-white transition">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path *ngIf="!menuOpen()" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+        <path *ngIf="menuOpen()" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <!-- Desktop Menu & Integrated Controls -->
+    <div class="hidden md:flex items-center gap-4">
+      <!-- Language -->
+      <div class="flex bg-studio-dark border border-gray-800 rounded-full p-1">
+        <button (click)="lang.setLanguage('en')" class="px-2 py-1 text-[9px] font-black rounded-full transition" [ngClass]="lang.currentLang() === 'en' ? 'bg-highlight text-white' : 'text-gray-500'">EN</button>
+        <button (click)="lang.setLanguage('es')" class="px-2 py-1 text-[9px] font-black rounded-full transition" [ngClass]="lang.currentLang() === 'es' ? 'bg-highlight text-white' : 'text-gray-500'">ES</button>
       </div>
 
-      <!-- Module Toggles -->
-      <div class="flex items-center gap-1.5 border border-gray-800 p-1 rounded-full bg-studio-dark scale-90 md:scale-100">
-        <button (click)="theory.showMetronome.set(!theory.showMetronome())"
-          class="text-[10px] md:text-xs font-bold uppercase tracking-wider px-3 md:px-4 py-2 rounded-full transition whitespace-nowrap"
+      <!-- Icon Actions Row -->
+      <div class="flex items-center gap-1 bg-studio-dark border border-gray-800 rounded-full p-1">
+        <!-- Help -->
+        <button (click)="theory.showTutorial.set(true)" [attr.title]="lang.t('HELP')"
+          class="p-2 rounded-full text-gray-400 hover:text-white hover:bg-studio-darker transition flex items-center gap-1 px-3">
+          <span>💡</span> <span class="text-[10px] font-bold uppercase">{{ lang.t('HELP') }}</span>
+        </button>
+
+        <div class="w-px h-4 bg-gray-800 mx-1"></div>
+
+        <!-- Games -->
+        <button (click)="theory.showGamesPanel.set(!theory.showGamesPanel())" [attr.title]="lang.t('GAMES')"
+          class="p-2 rounded-full transition flex items-center gap-1 px-3"
+          [ngClass]="theory.showGamesPanel() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
+          <span>🎮</span> <span class="text-[10px] font-bold uppercase">{{ lang.t('GAMES') }}</span>
+        </button>
+
+        <!-- Metronome -->
+        <button (click)="theory.showMetronome.set(!theory.showMetronome())" [attr.title]="lang.t('METRONOME')"
+          class="p-2 rounded-full transition flex items-center gap-1 px-3"
           [ngClass]="theory.showMetronome() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
-          {{ lang.t('METRONOME') }}
+          <span>🥁</span> <span class="text-[10px] font-bold uppercase">{{ lang.t('METRONOME') }}</span>
         </button>
-  
-        <button (click)="theory.showCircle.set(!theory.showCircle())"
-          class="text-[10px] md:text-xs font-bold uppercase tracking-wider px-3 md:px-4 py-2 rounded-full transition whitespace-nowrap"
-          [ngClass]="theory.showCircle() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
-          {{ lang.t('CIRCLE_OF_FIFTHS') }}
+
+        <!-- CAGED -->
+        <button (click)="theory.showCagedPanel.set(!theory.showCagedPanel())" [attr.title]="lang.t('CAGED_SYSTEM')"
+          class="p-2 rounded-full transition flex items-center gap-1 px-3"
+          [ngClass]="theory.showCagedPanel() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
+          <span>🎸</span> <span class="text-[10px] font-bold uppercase">CAGED</span>
         </button>
-  
+
+        <!-- Progressions -->
+        <button (click)="theory.showProgressionsPanel.set(!theory.showProgressionsPanel())" [attr.title]="lang.t('SONGWRITING')"
+          class="p-2 rounded-full transition flex items-center gap-1 px-3"
+          [ngClass]="theory.showProgressionsPanel() ? 'bg-highlight text-white shadow-lg' : 'text-gray-400 hover:text-white'">
+          <span>🎼</span> <span class="text-[10px] font-bold uppercase">{{ lang.t('SONGWRITING') }}</span>
+        </button>
+
+        <div class="w-px h-4 bg-gray-800 mx-1"></div>
+
+        <!-- Theme Toggle -->
         <button (click)="theory.isDarkMode.set(!theory.isDarkMode())"
-          class="w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition hover:bg-studio-darker">
-          <span *ngIf="theory.isDarkMode()">🌙</span>
-          <span *ngIf="!theory.isDarkMode()">☀️</span>
+          class="p-2 rounded-full text-gray-400 hover:text-white transition">
+          {{ theory.isDarkMode() ? '🌙' : '☀️' }}
         </button>
       </div>
+    </div>
+
+    <!-- Mobile Menu Drawer -->
+    <div *ngIf="menuOpen()" class="absolute top-full left-0 right-0 bg-studio-dark border border-gray-800 rounded-lg p-4 mt-2 shadow-2xl flex flex-col gap-3 md:hidden z-50">
+       <button (click)="theory.showTutorial.set(true); menuOpen.set(false)" class="flex items-center gap-3 p-3 text-gray-300 font-bold uppercase text-xs hover:bg-studio-darker rounded"><span>💡</span> {{ lang.t('HELP') }}</button>
+       <button (click)="theory.showGamesPanel.set(!theory.showGamesPanel()); menuOpen.set(false)" class="flex items-center gap-3 p-3 font-bold uppercase text-xs rounded" [ngClass]="theory.showGamesPanel() ? 'bg-highlight text-white' : 'text-gray-300'"><span>🎮</span> {{ lang.t('GAMES') }}</button>
+       <button (click)="theory.showMetronome.set(!theory.showMetronome()); menuOpen.set(false)" class="flex items-center gap-3 p-3 font-bold uppercase text-xs rounded" [ngClass]="theory.showMetronome() ? 'bg-highlight text-white' : 'text-gray-300'"><span>🥁</span> {{ lang.t('METRONOME') }}</button>
+       <button (click)="theory.showCagedPanel.set(!theory.showCagedPanel()); menuOpen.set(false)" class="flex items-center gap-3 p-3 font-bold uppercase text-xs rounded" [ngClass]="theory.showCagedPanel() ? 'bg-highlight text-white' : 'text-gray-300'"><span>🎸</span> CAGED</button>
+       <button (click)="theory.showProgressionsPanel.set(!theory.showProgressionsPanel()); menuOpen.set(false)" class="flex items-center gap-3 p-3 font-bold uppercase text-xs rounded" [ngClass]="theory.showProgressionsPanel() ? 'bg-highlight text-white' : 'text-gray-300'"><span>🎼</span> {{ lang.t('SONGWRITING') }}</button>
+       <div class="border-t border-gray-800 my-1 pt-2 flex items-center justify-between">
+          <div class="flex gap-2">
+            <button (click)="lang.setLanguage('en')" class="px-4 py-2 text-xs font-bold rounded bg-gray-800 text-white" [class.bg-highlight]="lang.currentLang() === 'en'">EN</button>
+            <button (click)="lang.setLanguage('es')" class="px-4 py-2 text-xs font-bold rounded bg-gray-800 text-white" [class.bg-highlight]="lang.currentLang() === 'es'">ES</button>
+          </div>
+          <button (click)="theory.isDarkMode.set(!theory.isDarkMode())" class="p-2 text-xl">{{ theory.isDarkMode() ? '🌙' : '☀️' }}</button>
+       </div>
     </div>
   </header>
 
   <main class="w-full max-w-7xl mx-auto flex flex-col gap-6 md:gap-8">
 
-    <!-- Metronome (Top) -->
-    <app-metronome *ngIf="theory.showMetronome()"></app-metronome>
-
-    <!-- Top Section: Controls + optional side panels -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-
-      <!-- Control Panel: shrinks when panels are shown -->
-      <div class="flex flex-col" [ngClass]="theory.showCircle() ? 'lg:col-span-2' : 'lg:col-span-3'">
-        <app-control-panel class="flex-grow"></app-control-panel>
-      </div>
-
-      <!-- Side Panels Column -->
-      <div class="lg:col-span-1 flex flex-col gap-6" *ngIf="theory.showCircle()">
-        <app-circle-of-fifths *ngIf="theory.showCircle()"></app-circle-of-fifths>
-      </div>
-
+    <!-- Top Section: Metronome & Games -->
+    <div [hidden]="!theory.showMetronome()">
+      <app-metronome></app-metronome>
     </div>
 
-    <!-- Bottom Section: Detailed Fretboard -->
-    <div class="w-full bg-studio-dark border border-gray-800 rounded-lg p-6 shadow-xl">
+    <div *ngIf="theory.showGamesPanel()" class="w-full">
+       <div class="flex justify-center gap-4 mb-4">
+         <button (click)="theory.activeGame.set('song')" class="px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all" [ngClass]="theory.activeGame() === 'song' ? 'bg-highlight text-white' : 'bg-gray-800 text-gray-400 hover:text-white'">{{ lang.t('PLAY_A_SONG') }}</button>
+         <button (click)="theory.activeGame.set('flashcard')" class="px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all" [ngClass]="theory.activeGame() === 'flashcard' ? 'bg-highlight text-white' : 'bg-gray-800 text-gray-400 hover:text-white'">{{ lang.t('FLASHCARDS') }}</button>
+       </div>
+       <div class="w-full">
+         <app-game-song *ngIf="theory.activeGame() === 'song'"></app-game-song>
+         <app-game-flashcard *ngIf="theory.activeGame() === 'flashcard'"></app-game-flashcard>
+       </div>
+    </div>
+
+    <!-- Theory Boxes: Now at the top when shown -->
+    <div class="w-full flex flex-col gap-6" *ngIf="theory.showCagedPanel() || theory.showProgressionsPanel()">
+        <app-control-panel class="w-full"></app-control-panel>
+    </div>
+
+    <!-- Detailed Fretboard -->
+    <div class="w-full bg-studio-dark border border-gray-800 rounded-lg p-4 md:p-6 shadow-xl">
       <app-fretboard></app-fretboard>
     </div>
+
+    <!-- Bottom Section: Circle of Fifths (Keep as side/bottom panel for reference) -->
+    <div *ngIf="theory.showCircle()" class="w-full">
+        <app-circle-of-fifths></app-circle-of-fifths>
+    </div>
+
   </main>
 
+  <app-tutorial></app-tutorial>
 </div>

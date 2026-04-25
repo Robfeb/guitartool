@@ -5,7 +5,8 @@ Welcome to **Rob's Guitar Tool**, a high-performance, interactive guitar theory 
 ## 📱 Progressive Web App (PWA)
 - **Install to Home Screen**: Fully installable as a standalone app on iOS, Android, and Desktop.
 - **Offline Ready**: Core features and assets are cached for offline practice without an internet connection.
-- **Mobile Optimized**: Enhanced layout for one-handed use and touch interaction on mobile devices.
+- **Mobile-First Design**: Optimized for small screens (like iPhone 12) with collapsible menus and a priority layout that keeps the fretboard front and center.
+- **Touch-Friendly Controls**: Large interactive elements and streamlined configuration menus for easy mobile navigation.
 
 ## ✨ Key Features
 
@@ -25,6 +26,14 @@ Welcome to **Rob's Guitar Tool**, a high-performance, interactive guitar theory 
 - **`M`**: Start/Stop the global metronome and drum playback.
 - **`C, D, E, F, G, A, B`**: Fast-switch the root note of the entire application.
 - *Safety*: Shortcuts are automatically disabled when typing in input fields.
+
+### 🎮 Interactive Games & Tutorial
+- **Play a Song**: Practice playing through chord progressions.
+    - **Metronome Sync**: Automatically triggers the global metronome at the song's tempo when you start.
+    - **Flexible Length**: Choose between 3 to 8 chords per sequence to customize your practice session.
+- **Flashcards**: Test your fretboard knowledge by guessing the correct shape for randomly generated chords.
+- **Interactive Onboarding**: A step-by-step tutorial overlay introduces new users to all the features.
+    - **Quick Close**: Use the **`Escape`** key to skip or close the tutorial instantly.
 
 ### 📚 Theory & Composition
 - **Composition Helpers**: Secondary dominants and modal interchange suggestions in scale mode.
