@@ -9,6 +9,7 @@ import { GameFlashcardComponent } from './components/games/game-flashcard.compon
 import { TutorialComponent } from './components/tutorial/tutorial.component';
 import { TheoryService } from './services/theory.service';
 import { TranslationService } from './services/translation.service';
+import * as Tone from 'tone';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +21,15 @@ export class App {
   theory = inject(TheoryService);
   lang = inject(TranslationService);
   menuOpen = signal(false);
+
+  // Global click listener to ensure Tone.js starts on first interaction (required for iOS)
+  @HostListener('document:click')
+  async onFirstInteraction() {
+    if (Tone.context.state !== 'running') {
+      await Tone.start();
+      console.log('Tone.js started');
+    }
+  }
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {

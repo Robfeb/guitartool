@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TheoryService, NOTES, CHORD_PROGRESSIONS } from '../../services/theory.service';
 import { TranslationService } from '../../services/translation.service';
+import * as Tone from 'tone';
 
 @Component({
   selector: 'app-game-song',
@@ -166,7 +167,8 @@ export class GameSongComponent implements OnDestroy {
     return this.theory.currentCagedShape();
   }
 
-  togglePlay() {
+  async togglePlay() {
+    if (Tone.context.state !== 'running') await Tone.start();
     if (this.isPlaying()) {
       this.stop();
     } else {
