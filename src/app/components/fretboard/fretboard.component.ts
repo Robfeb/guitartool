@@ -31,7 +31,7 @@ import * as Tone from 'tone';
                <button *ngFor="let note of notes" 
                        class="flex-1 min-w-[2.5rem] py-2 text-xs font-black transition hover:bg-highlight hover:text-white"
                        [ngClass]="{'bg-root text-white shadow-lg': theory.selectedRoot() === note, 'text-gray-500': theory.selectedRoot() !== note}"
-                       (click)="theory.selectedRoot.set(note); theory.previewRoot.set(null); theory.previewChordName.set(null)">
+                       (click)="theory.selectedRoot.set(note); theory.previewRoot.set(null); theory.previewChordName.set(null); theory.previewType.set(null)">
                  {{ lang.t(note) }}
                </button>
              </div>
@@ -47,6 +47,16 @@ import * as Tone from 'tone';
                <option value="Scale" class="bg-studio-dark text-white">{{ lang.t('SCALE') }}</option>
                <option value="Chord" class="bg-studio-dark text-white">{{ lang.t('CHORD') }}</option>
              </select>
+         </div>
+
+         <!-- Color By Note Toggle -->
+         <div class="flex flex-col gap-1.5 w-full sm:w-28">
+             <span class="text-[9px] text-gray-500 uppercase tracking-widest font-black whitespace-nowrap">{{ lang.t('COLORS') }}</span>
+             <label class="flex items-center justify-center gap-2 cursor-pointer h-[34px] bg-studio-darker border border-gray-800 px-2 rounded shadow-inner hover:bg-gray-800 transition">
+               <input type="checkbox" [ngModel]="theory.colorByNote()" (ngModelChange)="theory.colorByNote.set($event)"
+                      class="accent-highlight w-4 h-4 rounded">
+               <span class="text-[10px] font-bold text-white uppercase">{{ theory.colorByNote() ? lang.t('ON') : lang.t('OFF') }}</span>
+             </label>
          </div>
       </div>
 
@@ -84,9 +94,11 @@ import * as Tone from 'tone';
                     class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black transition-all shadow-md active:scale-90"
                     [ngClass]="{
                       'bg-root text-white scale-110 shadow-root/50 z-20 ring-2 ring-white': note.interval === 0,
-                      'bg-highlight text-white': note.interval !== null && note.interval !== 0,
+                      'bg-highlight text-white': !theory.colorByNote() && note.interval !== null && note.interval !== 0,
+                      'text-white': theory.colorByNote() && note.interval !== null && note.interval !== 0,
                       'bg-studio-darker text-gray-600 opacity-30 hover:opacity-100': note.interval === null
                     }"
+                    [style.background-color]="theory.colorByNote() && note.interval !== null && note.interval !== 0 ? getNoteColor(note.note) : ''"
                     (click)="playNote(note)">
                     <span *ngIf="theory.showFingers() && note.finger" class="text-sm">
                       {{ note.finger }}
@@ -218,6 +230,7 @@ export class FretboardComponent {
       this.theory.selectedRoot.set(selectedNote);
       this.theory.previewRoot.set(null);
       this.theory.previewChordName.set(null);
+      this.theory.previewType.set(null);
       
       if (this.theory.selectedType() === 'Chord') {
         await this.strumChord();
@@ -250,11 +263,17 @@ export class FretboardComponent {
 
   selectName(name: string) {
     this.theory.selectedName.set(name);
+    this.theory.previewRoot.set(null);
+    this.theory.previewChordName.set(null);
+    this.theory.previewType.set(null);
     this.theory.selectedVoicingIndex.set(0);
   }
 
   onTypeChange(newType: 'Scale' | 'Chord') {
     this.theory.selectedType.set(newType);
+    this.theory.previewRoot.set(null);
+    this.theory.previewChordName.set(null);
+    this.theory.previewType.set(null);
     const newOptions = this.currentOptions();
     if (!newOptions.includes(this.theory.selectedName())) {
       this.theory.selectedName.set(newOptions[0]);
@@ -320,5 +339,14 @@ export class FretboardComponent {
       7: '5', 8: 'b6', 9: '6', 10: 'b7', 11: '7'
     };
     return names[interval] || '';
+  }
+
+  getNoteColor(noteName: string): string {
+    const hueMap: Record<string, number> = {
+      'C': 0, 'C#': 30, 'D': 60, 'D#': 90, 'E': 120, 'F': 150,
+      'F#': 180, 'G': 210, 'G#': 240, 'A': 270, 'A#': 300, 'B': 330
+    };
+    const hue = hueMap[noteName] || 0;
+    return `hsl(${hue}, 70%, 50%)`;
   }
 }

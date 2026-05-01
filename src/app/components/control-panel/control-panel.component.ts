@@ -42,7 +42,7 @@ import { CagedSystemComponent } from '../caged-system/caged-system.component';
           <!-- Progression Details Card -->
           <div class="bg-gray-800 rounded-lg p-3 md:p-4 border border-blue-900 border-opacity-40 flex flex-col md:flex-row items-start gap-4">
             <div class="flex-shrink-0 text-center min-w-[100px] w-full md:w-auto">
-              <p class="text-xl font-black text-highlight font-mono leading-none">{{ currentProgression.formula }}</p>
+              <p class="text-xl font-black text-highlight font-mono leading-none">{{ dynamicFormula }}</p>
               <p class="text-[9px] text-gray-500 mt-1 uppercase tracking-wider">{{ theory.selectedProgressionStyle() }}</p>
             </div>
             <p class="text-[11px] text-gray-400 italic leading-relaxed border-t md:border-t-0 md:border-l border-gray-700 pt-3 md:pt-0 md:pl-4">{{ lang.t(currentProgression.descriptionKey) }}</p>
@@ -52,7 +52,7 @@ import { CagedSystemComponent } from '../caged-system/caged-system.component';
           <div class="flex flex-wrap items-end gap-2 bg-fretboard rounded-lg p-3 border border-gray-700 overflow-x-auto no-scrollbar">
             <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider self-center mr-2 lg:block">{{ lang.t('IN_KEY') }} {{ lang.t(theory.selectedRoot()) }}:</span>
             <div class="flex items-end gap-2 shrink-0">
-               <ng-container *ngFor="let degree of theory.resolveProgressionChords(theory.selectedRoot(), currentProgression.formula); let last = last">
+               <ng-container *ngFor="let degree of resolvedChords; let last = last">
                 <div class="flex flex-col items-center gap-1">
                   <span class="text-[9px] text-gray-500 font-mono">{{ degree.roman }}</span>
                   <button
@@ -72,21 +72,27 @@ import { CagedSystemComponent } from '../caged-system/caged-system.component';
       </div>
       
       <!-- Composition Mode Helper (Scale mode only) -->
-      <div *ngIf="theory.compositionNotes().secondaryDominants.length > 0" class="bg-studio-dark border border-gray-800 rounded-lg p-4 md:p-6 shadow-xl grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">{{ lang.t('SECONDARY_DOMINANTS') }}</h4>
-          <div class="flex flex-wrap gap-2">
-            <span *ngFor="let chord of theory.compositionNotes().secondaryDominants" class="bg-gray-800 text-[10px] px-2 py-1 rounded text-white border border-gray-700">
-              {{ lang.t(chord) }}
-            </span>
+      <div *ngIf="theory.compositionNotes().secondaryDominants.length > 0" class="flex flex-col gap-2">
+        <button (click)="showComposition.set(!showComposition())" class="text-[10px] text-gray-500 font-bold uppercase tracking-widest text-left hover:text-white transition w-fit flex items-center gap-1">
+          <span>{{ showComposition() ? '▼' : '▶' }}</span>
+          <span>{{ showComposition() ? lang.t('HIDE') : lang.t('SHOW') }} {{ lang.t('COMPOSITION') || 'ADVANCED COMPOSITION' }}</span>
+        </button>
+        <div *ngIf="showComposition()" class="bg-studio-dark border border-gray-800 rounded-lg p-4 md:p-6 shadow-xl grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">{{ lang.t('SECONDARY_DOMINANTS') }}</h4>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let chord of theory.compositionNotes().secondaryDominants" class="bg-gray-800 text-[10px] px-2 py-1 rounded text-white border border-gray-700">
+                {{ lang.t(chord) }}
+              </span>
+            </div>
           </div>
-        </div>
-        <div>
-          <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">{{ lang.t('MODAL_INTERCHANGE') }}</h4>
-          <div class="flex flex-wrap gap-2">
-            <span *ngFor="let chord of theory.compositionNotes().modalInterchange" class="bg-gray-800 text-[10px] px-2 py-1 rounded text-white border border-gray-700">
-              {{ lang.t(chord) }}
-            </span>
+          <div>
+            <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">{{ lang.t('MODAL_INTERCHANGE') }}</h4>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let chord of theory.compositionNotes().modalInterchange" class="bg-gray-800 text-[10px] px-2 py-1 rounded text-white border border-gray-700">
+                {{ lang.t(chord) }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -98,17 +104,30 @@ export class ControlPanelComponent {
   lang = inject(TranslationService);
   tunings = Object.keys(TUNINGS);
   progressionKeys = Object.keys(CHORD_PROGRESSIONS);
+  showComposition = signal(false);
 
   get currentProgression() {
     return CHORD_PROGRESSIONS[this.theory.selectedProgressionStyle()]
       ?? { formula: '', descriptionKey: '' };
   }
 
+  get resolvedChords() {
+    return this.theory.resolveProgressionChords(
+      this.theory.selectedRoot(), 
+      this.currentProgression.formula, 
+      this.theory.selectedType() === 'Scale' ? this.theory.selectedName() : 'Major'
+    );
+  }
+
+  get dynamicFormula() {
+    return this.resolvedChords.map(c => c.roman).join(' – ');
+  }
+
   selectChord(degree: { note: string; chordName: string }) {
     // Set PREVIEW signals — fretboard updates without touching selectedRoot/selectedName
     this.theory.previewRoot.set(degree.note);
     this.theory.previewChordName.set(degree.chordName);
-    this.theory.selectedType.set('Chord');
+    this.theory.previewType.set('Chord');
     this.theory.selectedVoicingIndex.set(0);
   }
 

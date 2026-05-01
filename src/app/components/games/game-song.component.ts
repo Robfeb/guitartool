@@ -101,9 +101,11 @@ import * as Tone from 'tone';
       <!-- Progression Overview -->
       <div class="flex flex-wrap gap-2 items-center justify-center mt-2 p-2 bg-studio-darker rounded border border-gray-800">
          <ng-container *ngFor="let degree of resolvedSequence(); let i = index; let last = last">
-            <span class="text-xs font-mono font-bold transition-colors" [ngClass]="isPlaying() && currentChordIndex() === i ? 'text-highlight scale-110' : 'text-gray-500'">
+            <button (click)="previewChord(degree)"
+               class="text-xs font-mono font-bold transition-colors cursor-pointer hover:text-white"
+               [ngClass]="isPlaying() && currentChordIndex() === i ? 'text-highlight scale-110' : 'text-gray-500'">
                {{ lang.t(degree.note) }}{{ degree.quality }} ({{ degree.roman }})
-            </span>
+            </button>
             <span *ngIf="!last" class="text-gray-700 text-xs">-</span>
          </ng-container>
       </div>
@@ -132,9 +134,10 @@ export class GameSongComponent implements OnDestroy {
 
   get resolvedSequence() {
      const formula = CHORD_PROGRESSIONS[this.selectedStyle]?.formula || '';
-     return () => {
-        const baseSeq = this.theory.resolveProgressionChords(this.selectedKey, formula);
-        if (!baseSeq || baseSeq.length === 0) return [];
+      return () => {
+         const scaleName = this.theory.selectedType() === 'Scale' ? this.theory.selectedName() : 'Major';
+         const baseSeq = this.theory.resolveProgressionChords(this.selectedKey, formula, scaleName);
+         if (!baseSeq || baseSeq.length === 0) return [];
         
         const finalSeq = [];
         for (let i = 0; i < this.numberOfChords; i++) {
@@ -213,6 +216,7 @@ export class GameSongComponent implements OnDestroy {
     // Clear preview so it returns to main selection
     this.theory.previewRoot.set(null);
     this.theory.previewChordName.set(null);
+    this.theory.previewType.set(null);
     this.theory.showFingers.set(true);
   }
 
@@ -259,7 +263,7 @@ export class GameSongComponent implements OnDestroy {
     const chord = this.currentActiveChord();
     this.theory.previewRoot.set(chord.note);
     this.theory.previewChordName.set(chord.chordName);
-    this.theory.selectedType.set('Chord');
+    this.theory.previewType.set('Chord');
 
     if (this.difficulty === 'hard') {
       this.theory.showFingers.set(false);
@@ -268,6 +272,14 @@ export class GameSongComponent implements OnDestroy {
       this.theory.selectedVoicingIndex.set(0);
       this.theory.showFingers.set(true);
     }
+  }
+
+  previewChord(degree: any) {
+    if (this.isPlaying()) return;
+    this.theory.previewRoot.set(degree.note);
+    this.theory.previewChordName.set(degree.chordName);
+    this.theory.previewType.set('Chord');
+    this.theory.selectedVoicingIndex.set(0);
   }
 
   ngOnDestroy() {

@@ -122,6 +122,16 @@ export const CHORD_PROGRESSIONS: Record<string, { formula: string; descriptionKe
   'Southern Rock':   { formula: 'I – bVII – IV – I',   descriptionKey: 'DESC_SOUTHERN_ROCK' },
   'Cinematic':       { formula: 'i – bVI – bIII – bVII', descriptionKey: 'DESC_ALT_ROCK' },
   'Grunge/Alt':      { formula: 'I – bIII – IV – iv',  descriptionKey: 'DESC_GRUNGE' },
+  'Bossa Nova':      { formula: 'I – vi – ii – V',     descriptionKey: 'DESC_BOSSA_NOVA' },
+  'Samba':           { formula: 'I – IV – V – I',      descriptionKey: 'DESC_SAMBA' },
+  'Reggae':          { formula: 'I – IV – V – IV',     descriptionKey: 'DESC_REGGAE' },
+  'Andalusian':      { formula: 'vi – V – IV – III',   descriptionKey: 'DESC_ANDALUSIAN' },
+  'Neo-Soul':        { formula: 'ii – V – I – vi',     descriptionKey: 'DESC_NEO_SOUL' },
+  'Jazz Standard':   { formula: 'vi – ii – V – I',     descriptionKey: 'DESC_JAZZ_STANDARD' },
+  'R&B Groove':      { formula: 'I – vi – ii – V – iii – vi', descriptionKey: 'DESC_RB_GROOVE' },
+  'Flamenco':        { formula: 'vi – V – IV – III – vi', descriptionKey: 'DESC_FLAMENCO' },
+  'Modern Pop':      { formula: 'vi – IV – I – V',     descriptionKey: 'DESC_MODERN_POP' },
+  'Lofi Chill':      { formula: 'ii – v – i – iv',     descriptionKey: 'DESC_LOFI_CHILL' },
 };
 
 export const ROMAN_MAP: Record<string, { offset: number; quality: string }> = {
@@ -136,9 +146,11 @@ export const ROMAN_MAP: Record<string, { offset: number; quality: string }> = {
   'bIII': { offset: 3,  quality: '' },
   'bVI':  { offset: 8,  quality: '' },
   'bVII': { offset: 10, quality: '' },
+  'i':    { offset: 0,  quality: 'm' },
   'ii':   { offset: 2,  quality: 'm' },
   'iii':  { offset: 4,  quality: 'm' },
   'iv':   { offset: 5,  quality: 'm' },
+  'v':    { offset: 7,  quality: 'm' },
   'vi':   { offset: 9,  quality: 'm' },
   'vii':  { offset: 11, quality: 'dim' },
 };
@@ -152,6 +164,7 @@ export class TheoryService {
   selectedName = signal('Major');
   learningMode = signal(true);
   showFingers = signal(true);
+  colorByNote = signal(false);
   
   selectedTuning = signal('Standard');
   selectedProgressionStyle = signal('Pop');
@@ -188,6 +201,7 @@ export class TheoryService {
   // Preview signals: set by Songwriting Progressions chord buttons.
   previewRoot = signal<string | null>(null);
   previewChordName = signal<string | null>(null);
+  previewType = signal<'Scale' | 'Chord' | null>(null);
 
   // Game & Tutorial States
   showGamesPanel = signal(false);
@@ -206,6 +220,7 @@ export class TheoryService {
         this.selectedName.set(state.selectedName ?? 'Major');
         this.learningMode.set(state.learningMode ?? true);
         this.showFingers.set(state.showFingers ?? true);
+        this.colorByNote.set(state.colorByNote ?? false);
         this.selectedTuning.set(state.selectedTuning ?? 'Standard');
         this.selectedProgressionStyle.set(state.selectedProgressionStyle ?? 'Pop');
         
@@ -249,6 +264,7 @@ export class TheoryService {
         selectedName: this.selectedName(),
         learningMode: this.learningMode(),
         showFingers: this.showFingers(),
+        colorByNote: this.colorByNote(),
         selectedTuning: this.selectedTuning(),
         selectedProgressionStyle: this.selectedProgressionStyle(),
         isDarkMode: this.isDarkMode(),
@@ -275,9 +291,10 @@ export class TheoryService {
   // Effective values used by the fretboard (preview takes priority)
   effectiveRoot = computed(() => this.previewRoot() ?? this.selectedRoot());
   effectiveChordName = computed(() => this.previewChordName() ?? this.selectedName());
+  effectiveType = computed(() => this.previewType() ?? this.selectedType());
 
   activeIntervals = computed(() => {
-    const type = this.selectedType();
+    const type = this.effectiveType();
     const name = this.effectiveChordName();
     if (type === 'Scale') return SCALES[name] || SCALES['Major'];
     return CHORDS[name] || CHORDS['Major'];
@@ -356,7 +373,7 @@ export class TheoryService {
 
   // Generated voicings
   generatedVoicings = computed(() => {
-    if (this.selectedType() !== 'Chord') return [];
+    if (this.effectiveType() !== 'Chord') return [];
     
     const typeName = this.effectiveChordName();
     const shapes = STANDARD_SHAPES[typeName] || [];
@@ -467,7 +484,7 @@ export class TheoryService {
   visibleFretboard = computed(() => {
      let board = this.allNotesFretboard();
      
-     if (this.selectedType() === 'Scale') {
+     if (this.effectiveType() === 'Scale') {
          // Show all notes in scale
          return board;
      } else {
@@ -493,7 +510,7 @@ export class TheoryService {
   });
 
   // Helper to parse progression formula
-  resolveProgressionChords(rootNote: string, formula: string): { roman: string; note: string; quality: string; chordName: string }[] {
+  resolveProgressionChords(rootNote: string, formula: string, scaleName: string = 'Major'): { roman: string; note: string; quality: string; chordName: string }[] {
     if (!formula) return [];
     const rootIdx = NOTES.indexOf(rootNote);
     const degrees = formula.split(/\s*[–\-]\s*/).map(d => d.trim()).filter(Boolean);
@@ -502,14 +519,54 @@ export class TheoryService {
       '':    'Major',
       'm':   'Minor',
       'dim': 'Diminished',
+      'aug': 'Augmented',
     };
 
+    const degreeMap: Record<string, number> = {
+       'i': 0, 'ii': 1, 'iii': 2, 'iv': 3, 'v': 4, 'vi': 5, 'vii': 6
+    };
+
+    const scaleIntervals = SCALES[scaleName] || SCALES['Major'];
+    const isScaleMode = scaleName !== 'Major' && scaleIntervals.length === 7;
+
     return degrees.map(roman => {
-      const entry = ROMAN_MAP[roman];
-      if (!entry) return { roman, note: roman, quality: '', chordName: 'Major' };
+      let entry = ROMAN_MAP[roman];
+      let displayRoman = roman;
+
+      if (isScaleMode) {
+         const baseRoman = roman.replace(/^[b#]/, '').toLowerCase();
+         const scaleDegree = degreeMap[baseRoman];
+         if (scaleDegree !== undefined) {
+             const rootOffset = scaleIntervals[scaleDegree];
+             const thirdOffset = scaleIntervals[(scaleDegree + 2) % 7];
+             const fifthOffset = scaleIntervals[(scaleDegree + 4) % 7];
+             
+             let t = thirdOffset - rootOffset;
+             if (t < 0) t += 12;
+             let f = fifthOffset - rootOffset;
+             if (f < 0) f += 12;
+             
+             let quality = '';
+             if (t === 4 && f === 7) quality = ''; // Major
+             else if (t === 3 && f === 7) quality = 'm'; // Minor
+             else if (t === 3 && f === 6) quality = 'dim'; // Diminished
+             else if (t === 4 && f === 8) quality = 'aug'; // Augmented
+             
+             entry = { offset: rootOffset, quality };
+             
+             // Update roman case for better visual feedback based on quality
+             if (quality === 'm' || quality === 'dim') {
+                displayRoman = roman.toLowerCase();
+             } else {
+                displayRoman = roman.toUpperCase();
+             }
+         }
+      }
+
+      if (!entry) return { roman: displayRoman, note: displayRoman, quality: '', chordName: 'Major' };
       const noteIdx = (rootIdx + entry.offset) % 12;
       return { 
-        roman, 
+        roman: displayRoman, 
         note: NOTES[noteIdx], 
         quality: entry.quality,
         chordName: qualityToName[entry.quality] ?? 'Major'
